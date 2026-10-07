@@ -1,109 +1,84 @@
-# 🍔 Delivero
+# Delivero
 
-Delivero is a PHP-based food delivery web application that allows users to discover restaurants, browse menus, manage their carts, place orders, and track deliveries.
+Delivero is a web application developed with PHP and MySQL for online food ordering. The application allows users to browse restaurants and menus, add dishes to their cart, place orders, manage their accounts, and track their orders.
 
-## ✨ Features
+## Features
 
-### 👤 User
+### User
 
-* User registration and login
+* Create an account and log in
 * Browse restaurants
-* Browse restaurant menus
-* Add dishes to cart
-* Manage cart items
+* View restaurant menus
+* Add dishes to the cart
+* Update and manage the cart
 * Place orders
 * Track orders
 * Manage addresses
 * Manage favorites
 * Write reviews
-* Manage user profile
+* Manage profile information
 
-### 🔐 Admin
+### Admin
 
-* Admin authentication
+* Admin login
 * Manage restaurants
 * Manage categories
 * Manage dishes
 * Manage orders
 * Update order status
-* Manage users and settings
-* Dashboard and administration interface
+* View order details
+* Manage application settings
 
-## 🛠️ Technologies
+## Technologies
 
-* **PHP**
-* **MySQL**
-* **HTML5**
-* **CSS3**
-* **JavaScript**
-* **AJAX**
-* **WAMP**
+* PHP
+* MySQL
+* HTML
+* CSS
+* JavaScript
+* AJAX
+* WAMP
 
-## 📁 Project Structure
+## Project Structure
 
 ```text
 Delivero/
-│
 ├── admin/
-│   ├── includes/
-│   ├── templates/
-│   ├── css/
-│   └── js/
-│
 ├── user/
-│   ├── ajax/
-│   ├── assets/
-│   ├── includes/
-│   └── ...
-│
 ├── login.php
 ├── register.php
 ├── .gitignore
 └── README.md
 ```
 
-## 🚀 Installation
+## Installation
 
-### 1. Clone the repository
+1. Clone the repository:
 
 ```bash
 git clone https://github.com/tasnimbbelhassen/Delivero.git
 ```
 
-### 2. Move the project
+2. Place the project in the WAMP `www` directory.
 
-Place the project inside your WAMP `www` directory:
+3. Start Apache and MySQL from WAMP.
 
-```text
-C:\wamp64\www\
-```
+4. Create the project database using phpMyAdmin.
 
-### 3. Create the database
-
-Open **phpMyAdmin** and create the Delivero database.
-
-Then import the SQL file:
+5. Import the SQL file:
 
 ```text
 admin/bd_deliverov2.sql
 ```
 
-### 4. Configure the database
+6. Configure the database connection according to your local MySQL settings.
 
-Update the database configuration in the project's configuration files with your local MySQL credentials.
-
-### 5. Run the application
-
-Start **Apache** and **MySQL** from WAMP.
-
-Then open:
+7. Open the project in your browser:
 
 ```text
 http://localhost/mini-projet/mini-projet/
 ```
 
-## 👥 Project
+## Project
 
-**Delivero** — Food Delivery Web Application
-
-Developed as an academic web development project using PHP and MySQL.
+Delivero was developed as an academic web development project using PHP and MySQL.
