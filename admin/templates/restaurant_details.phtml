@@ -1,0 +1,213 @@
+<div class="row">
+   
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-body text-center">
+                <?php if (!empty($restaurant['image'])): ?>
+                    <img src="../<?= htmlspecialchars($restaurant['image']) ?>" 
+                         class="img-fluid rounded mb-3" 
+                         alt="<?= htmlspecialchars($restaurant['name']) ?>"
+                         style="max-height: 200px; object-fit: cover;">
+                <?php else: ?>
+                    <div class="bg-light rounded d-flex align-items-center justify-content-center mb-3" 
+                         style="height: 200px;">
+                        <i class="bi bi-shop text-muted" style="font-size: 4rem;"></i>
+                    </div>
+                <?php endif; ?>
+                
+                <h4 class="card-title"><?= htmlspecialchars($restaurant['name']) ?></h4>
+                
+                <div class="d-flex justify-content-center align-items-center mb-3">
+                    <div class="me-3">
+                        <span class="badge bg-<?= $restaurant['is_active'] ? 'success' : 'secondary' ?>">
+                            <?= $restaurant['is_active'] ? 'Actif' : 'Inactif' ?>
+                        </span>
+                    </div>
+                    <div class="star-rating">
+                        <?php for ($i = 1; $i <= 5; $i++): ?>
+                            <i class="bi bi-star<?= $i <= $restaurant['rating'] ? '-fill' : '' ?> text-warning"></i>
+                        <?php endfor; ?>
+                        <span class="ms-1">(<?= number_format($restaurant['rating'], 1) ?>)</span>
+                    </div>
+                </div>
+                
+                <div class="mt-4">
+                    <a href="edit_restaurant.php?id=<?= $restaurant['id'] ?>" class="btn btn-primary btn-sm">
+                        <i class="bi bi-pencil"></i> Modifier
+                    </a>
+                    <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                        <i class="bi bi-trash"></i> Supprimer
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        
+        <div class="card mt-3">
+            <div class="card-header">
+                <h6 class="card-title mb-0">Statistiques</h6>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-6 mb-3">
+                        <div class="stat-number"><?= $stats['total_dishes'] ?></div>
+                        <small class="text-muted">Plats total</small>
+                    </div>
+                    <div class="col-6 mb-3">
+                        <div class="stat-number"><?= $stats['available_dishes'] ?></div>
+                        <small class="text-muted">Disponibles</small>
+                    </div>
+                    <div class="col-6">
+                        <div class="stat-number"><?= $stats['special_dishes'] ?></div>
+                        <small class="text-muted">Spéciaux</small>
+                    </div>
+                    <div class="col-6">
+                        <div class="stat-number"><?= $stats['total_orders'] ?></div>
+                        <small class="text-muted">Commandes</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Informations du restaurant</h5>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <h6 class="text-muted">Adresse</h6>
+                        <p><?= nl2br(htmlspecialchars($restaurant['address'])) ?></p>
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="text-muted">Contact</h6>
+                        <p>
+                            <?php if (!empty($restaurant['phone'])): ?>
+                                <i class="bi bi-telephone me-1"></i> <?= htmlspecialchars($restaurant['phone']) ?><br>
+                            <?php endif; ?>
+                            <?php if (!empty($restaurant['email'])): ?>
+                                <i class="bi bi-envelope me-1"></i> <?= htmlspecialchars($restaurant['email']) ?>
+                            <?php endif; ?>
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6 class="text-muted">Livraison</h6>
+                        <p><i class="bi bi-clock me-1"></i> <?= htmlspecialchars($restaurant['delivery_time']) ?></p>
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="text-muted">Note moyenne des plats</h6>
+                        <p>
+                            <span class="badge bg-info">
+                                <?= number_format($stats['avg_dish_rating'] ?? 0, 1) ?>/5
+                            </span>
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-12">
+                        <h6 class="text-muted">Date de création</h6>
+                        <p><i class="bi bi-calendar me-1"></i> <?= date('d/m/Y à H:i', strtotime($restaurant['created_at'])) ?></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        
+        <div class="card mt-3">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">Plats du restaurant</h5>
+                <a href="add_dish.php?restaurant_id=<?= $restaurant['id'] ?>" class="btn btn-sm btn-primary">
+                    <i class="bi bi-plus-circle"></i> Ajouter un plat
+                </a>
+            </div>
+            <div class="card-body">
+                <?php if (empty($dishes)): ?>
+                    <div class="text-center py-4">
+                        <i class="bi bi-egg-fried text-muted" style="font-size: 3rem;"></i>
+                        <p class="text-muted mt-2">Aucun plat pour ce restaurant</p>
+                    </div>
+                <?php else: ?>
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Nom</th>
+                                    <th>Catégorie</th>
+                                    <th>Prix</th>
+                                    <th>Disponibilité</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($dishes as $dish): ?>
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <?php if (!empty($dish['image'])): ?>
+                                                <img src="../<?= htmlspecialchars($dish['image']) ?>" 
+                                                     class="rounded me-2" 
+                                                     style="width: 40px; height: 40px; object-fit: cover;">
+                                            <?php endif; ?>
+                                            <div>
+                                                <div><?= htmlspecialchars($dish['name']) ?></div>
+                                                <small class="text-muted"><?= $dish['is_special'] ? '⭐ Spécial' : '' ?></small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td><?= htmlspecialchars($dish['category_name']) ?></td>
+                                    <td><?= number_format($dish['price'], 2) ?> €</td>
+                                    <td>
+                                        <span class="badge bg-<?= $dish['is_available'] ? 'success' : 'secondary' ?>">
+                                            <?= $dish['is_available'] ? 'Disponible' : 'Indisponible' ?>
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <a href="dish_details.php?id=<?= $dish['id'] ?>" class="btn btn-sm btn-outline-primary">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                        <a href="edit_dish.php?id=<?= $dish['id'] ?>" class="btn btn-sm btn-outline-secondary">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                <?php endif; ?>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirmer la suppression</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Êtes-vous sûr de vouloir supprimer le restaurant <strong><?= htmlspecialchars($restaurant['name']) ?></strong> ?</p>
+                <div class="alert alert-warning">
+                    <i class="bi bi-exclamation-triangle"></i>
+                    Attention : Cette action supprimera également tous les plats associés à ce restaurant.
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                <a href="delete_restaurant.php?id=<?= $restaurant['id'] ?>" class="btn btn-danger">
+                    <i class="bi bi-trash"></i> Supprimer
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

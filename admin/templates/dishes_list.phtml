@@ -1,0 +1,479 @@
+
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="GET" action="dishes.php" class="row g-3">
+            <div class="col-md-3">
+                <label class="form-label">Recherche</label>
+                <div class="input-group">
+                    <input type="text" class="form-control" name="search" 
+                           value="<?= htmlspecialchars($search_query) ?>" 
+                           placeholder="Nom ou description...">
+                    <button class="btn btn-outline-secondary" type="submit">
+                        <i class="bi bi-search"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="col-md-2">
+                <label class="form-label">Catégorie</label>
+                <select class="form-select" name="category">
+                    <option value="">Toutes</option>
+                    <?php foreach ($categories as $category): ?>
+                        <option value="<?= $category['id'] ?>" 
+                            <?= ($category_filter == $category['id']) ? 'selected' : '' ?>>
+                            <?= htmlspecialchars($category['name']) ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+            
+            <div class="col-md-2">
+                <label class="form-label">Restaurant</label>
+                <select class="form-select" name="restaurant">
+                    <option value="">Tous</option>
+                    <?php foreach ($restaurants as $restaurant): ?>
+                        <option value="<?= $restaurant['id'] ?>" 
+                            <?= ($restaurant_filter == $restaurant['id']) ? 'selected' : '' ?>>
+                            <?= htmlspecialchars($restaurant['name']) ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+            
+            <div class="col-md-2">
+                <label class="form-label">Disponibilité</label>
+                <select class="form-select" name="availability">
+                    <option value="">Tous</option>
+                    <option value="available" <?= ($availability_filter == 'available') ? 'selected' : '' ?>>Disponibles</option>
+                    <option value="unavailable" <?= ($availability_filter == 'unavailable') ? 'selected' : '' ?>>Non disponibles</option>
+                </select>
+            </div>
+            
+            <div class="col-md-3 d-flex align-items-end">
+                <div class="btn-group w-100">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-funnel"></i> Filtrer
+                    </button>
+                    <a href="dishes.php" class="btn btn-outline-secondary">
+                        <i class="bi bi-x-circle"></i> Réinitialiser
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h3 class="h5 mb-0">
+                    <?php 
+                    $display_count = count($dishes);
+                    $total_count = $total_dishes ?? $display_count;
+                    echo "$display_count plat(s) trouvé(s)";
+                    if ($display_count != $total_count) {
+                        echo " sur $total_count";
+                    }
+                    ?>
+                </h3>
+                <?php if ($search_query || $category_filter || $restaurant_filter || $availability_filter): ?>
+                    <small class="text-muted">
+                        <?php 
+                        $filters = [];
+                        if ($search_query) $filters[] = "recherche: \"$search_query\"";
+                        if ($category_filter) {
+                            $catName = '';
+                            foreach ($categories as $cat) {
+                                if ($cat['id'] == $category_filter) {
+                                    $catName = $cat['name'];
+                                    break;
+                                }
+                            }
+                            if ($catName) $filters[] = "catégorie: $catName";
+                        }
+                        if ($restaurant_filter) {
+                            $restName = '';
+                            foreach ($restaurants as $rest) {
+                                if ($rest['id'] == $restaurant_filter) {
+                                    $restName = $rest['name'];
+                                    break;
+                                }
+                            }
+                            if ($restName) $filters[] = "restaurant: $restName";
+                        }
+                        if ($availability_filter == 'available') $filters[] = "disponibles";
+                        if ($availability_filter == 'unavailable') $filters[] = "non disponibles";
+                        echo implode(', ', $filters);
+                        ?>
+                    </small>
+                <?php endif; ?>
+            </div>
+            
+            <div>
+                <a href="add_dish.php" class="btn btn-primary">
+                    <i class="bi bi-plus-circle"></i> Nouveau plat
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<?php if (empty($dishes)): ?>
+    <div class="card">
+        <div class="card-body text-center py-5">
+            <i class="bi bi-egg-fried display-1 text-muted mb-3"></i>
+            <h3>Aucun plat trouvé</h3>
+            <p class="text-muted mb-4">
+                <?php if ($search_query || $category_filter || $restaurant_filter || $availability_filter): ?>
+                    Aucun plat ne correspond à vos critères de recherche.
+                <?php else: ?>
+                    Commencez par ajouter votre premier plat.
+                <?php endif; ?>
+            </p>
+            <a href="add_dish.php" class="btn btn-primary">
+                <i class="bi bi-plus-circle"></i> Ajouter un plat
+            </a>
+            <?php if ($search_query || $category_filter || $restaurant_filter || $availability_filter): ?>
+                <a href="dishes.php" class="btn btn-outline-secondary ms-2">
+                    <i class="bi bi-x-circle"></i> Réinitialiser les filtres
+                </a>
+            <?php endif; ?>
+        </div>
+    </div>
+<?php else: ?>
+   
+    <div class="card">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead>
+                        <tr>
+                            <th width="50">ID</th>
+                            <th width="80">Image</th>
+                            <th>Nom</th>
+                            <th>Catégorie</th>
+                            <th>Restaurant</th>
+                            <th width="100">Prix</th>
+                            <th width="120">Statut</th>
+                            <th width="180">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($dishes as $dish): ?>
+                        <tr>
+                            <td><span class="badge bg-secondary"><?= $dish['id'] ?></span></td>
+                            <td>
+                                <?php if (!empty($dish['image']) && file_exists('../' . $dish['image'])): ?>
+                                    <img src="../<?= htmlspecialchars($dish['image']) ?>" 
+                                         class="rounded" 
+                                         style="width: 60px; height: 60px; object-fit: cover;"
+                                         alt="<?= htmlspecialchars($dish['name']) ?>">
+                                <?php else: ?>
+                                    <div class="rounded bg-light d-flex align-items-center justify-content-center"
+                                         style="width: 60px; height: 60px;">
+                                        <i class="bi bi-egg-fried text-muted"></i>
+                                    </div>
+                                <?php endif; ?>
+                            </td>
+                            <td>
+                                <div class="fw-bold"><?= htmlspecialchars($dish['name']) ?></div>
+                                <div class="small text-muted mt-1">
+                                    <?= htmlspecialchars(substr($dish['description'] ?? '', 0, 60)) ?>
+                                    <?php if (strlen($dish['description'] ?? '') > 60): ?>...<?php endif; ?>
+                                </div>
+                                <div class="mt-1">
+                                    <?php if ($dish['is_special']): ?>
+                                        <span class="badge bg-warning">⭐ Spécial</span>
+                                    <?php endif; ?>
+                                    <?php if ($dish['is_vegetarian']): ?>
+                                        <span class="badge bg-success">🌱 Végétarien</span>
+                                    <?php endif; ?>
+                                    <?php if ($dish['calories']): ?>
+                                        <span class="badge bg-info">🔥 <?= $dish['calories'] ?> cal</span>
+                                    <?php endif; ?>
+                                </div>
+                            </td>
+                            <td>
+                                <?php if ($dish['category_name'] && $dish['category_name'] != 'N/A'): ?>
+                                    <span class="badge bg-primary">
+                                        <?= htmlspecialchars($dish['category_name']) ?>
+                                    </span>
+                                <?php else: ?>
+                                    <span class="text-muted">-</span>
+                                <?php endif; ?>
+                            </td>
+                            <td>
+                                <?php if ($dish['restaurant_name'] && $dish['restaurant_name'] != 'N/A'): ?>
+                                    <div class="d-flex align-items-center">
+                                        <i class="bi bi-shop me-1 text-muted"></i>
+                                        <span><?= htmlspecialchars($dish['restaurant_name']) ?></span>
+                                    </div>
+                                <?php else: ?>
+                                    <span class="text-muted">-</span>
+                                <?php endif; ?>
+                            </td>
+                            <td>
+                                <span class="fw-bold text-success">
+                                    <?= number_format($dish['price'], 2, ',', ' ') ?> €
+                                </span>
+                                <div class="small text-muted">
+                                    <i class="bi bi-clock"></i> <?= $dish['preparation_time'] ?> min
+                                </div>
+                            </td>
+                            <td>
+                                <span class="badge bg-<?= $dish['is_available'] ? 'success' : 'secondary' ?>">
+                                    <?= $dish['is_available'] ? '✓ Disponible' : '✗ Indisponible' ?>
+                                </span>
+                                <div class="small text-muted mt-1">
+                                    <i class="bi bi-star-fill text-warning"></i> <?= number_format($dish['rating'], 1) ?>
+                                    <br>
+                                    <i class="bi bi-cart3"></i> <?= $dish['order_count'] ?> cmd
+                                </div>
+                            </td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    <a href="dish_details.php?id=<?= $dish['id'] ?>" 
+                                       class="btn btn-outline-info" 
+                                       title="Voir détails"
+                                       data-bs-toggle="tooltip">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                    <a href="edit_dish.php?id=<?= $dish['id'] ?>" 
+                                       class="btn btn-outline-primary" 
+                                       title="Modifier"
+                                       data-bs-toggle="tooltip">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                    <a href="delete_dish.php?id=<?= $dish['id'] ?>" 
+                                       class="btn btn-outline-danger"
+                                       onclick="return confirm('Voulez-vous vraiment supprimer le plat : <?= addslashes($dish['name']) ?> ?')"
+                                       title="Supprimer"
+                                       data-bs-toggle="tooltip">
+                                        <i class="bi bi-trash"></i>
+                                    </a>
+                                </div>
+                                <div class="mt-2">
+                                    <small class="text-muted">
+                                        <?= date('d/m/Y', strtotime($dish['created_at'])) ?>
+                                    </small>
+                                </div>
+                            </td>
+                        </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+<?php endif; ?>
+
+
+<div class="row mt-5">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-bar-chart"></i> Statistiques des plats
+                    </h5>
+                    <a href="dishes.php?export=csv" class="btn btn-sm btn-outline-secondary">
+                        <i class="bi bi-download"></i> Exporter
+                    </a>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <?php
+                  
+                    $stats = [
+                        'total' => $pdo->query("SELECT COUNT(*) FROM dishes")->fetchColumn(),
+                        'available' => $pdo->query("SELECT COUNT(*) FROM dishes WHERE is_available = 1")->fetchColumn(),
+                        'special' => $pdo->query("SELECT COUNT(*) FROM dishes WHERE is_special = 1")->fetchColumn(),
+                        'vegetarian' => $pdo->query("SELECT COUNT(*) FROM dishes WHERE is_vegetarian = 1")->fetchColumn(),
+                        'avg_price' => $pdo->query("SELECT ROUND(AVG(price), 2) FROM dishes")->fetchColumn(),
+                        'total_orders' => $pdo->query("SELECT SUM(order_count) FROM dishes")->fetchColumn(),
+                    ];
+                    ?>
+                    <div class="col-md-2 col-6 mb-3">
+                        <div class="stat-number"><?= $stats['total'] ?></div>
+                        <small class="text-muted">Total plats</small>
+                    </div>
+                    <div class="col-md-2 col-6 mb-3">
+                        <div class="stat-number"><?= $stats['available'] ?></div>
+                        <small class="text-muted">Disponibles</small>
+                    </div>
+                    <div class="col-md-2 col-6 mb-3">
+                        <div class="stat-number"><?= $stats['special'] ?></div>
+                        <small class="text-muted">Spéciaux</small>
+                    </div>
+                    <div class="col-md-2 col-6 mb-3">
+                        <div class="stat-number"><?= $stats['vegetarian'] ?></div>
+                        <small class="text-muted">Végétariens</small>
+                    </div>
+                    <div class="col-md-2 col-6 mb-3">
+                        <div class="stat-number"><?= number_format($stats['avg_price'], 2, ',', ' ') ?> €</div>
+                        <small class="text-muted">Prix moyen</small>
+                    </div>
+                    <div class="col-md-2 col-6 mb-3">
+                        <div class="stat-number"><?= $stats['total_orders'] ?: 0 ?></div>
+                        <small class="text-muted">Commandes totales</small>
+                    </div>
+                </div>
+                
+                
+                <div class="row mt-4">
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-body">
+                                <h6 class="card-title">Répartition par catégorie</h6>
+                                <div class="small">
+                                    <?php
+                                    $cat_stats = $pdo->query("
+                                        SELECT c.name, COUNT(d.id) as count
+                                        FROM dishes d
+                                        LEFT JOIN categories c ON d.category_id = c.id
+                                        GROUP BY d.category_id
+                                        ORDER BY count DESC
+                                        LIMIT 5
+                                    ")->fetchAll();
+                                    
+                                    foreach ($cat_stats as $cat_stat):
+                                        $percentage = $stats['total'] > 0 ? round(($cat_stat['count'] / $stats['total']) * 100) : 0;
+                                    ?>
+                                    <div class="mb-2">
+                                        <div class="d-flex justify-content-between">
+                                            <span><?= htmlspecialchars($cat_stat['name']) ?></span>
+                                            <span><?= $cat_stat['count'] ?> (<?= $percentage ?>%)</span>
+                                        </div>
+                                        <div class="progress" style="height: 8px;">
+                                            <div class="progress-bar bg-primary" 
+                                                 style="width: <?= $percentage ?>%"></div>
+                                        </div>
+                                    </div>
+                                    <?php endforeach; ?>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-body">
+                                <h6 class="card-title">Top 5 plats populaires</h6>
+                                <div class="small">
+                                    <?php
+                                    $popular_dishes = $pdo->query("
+                                        SELECT name, order_count, price
+                                        FROM dishes
+                                        ORDER BY order_count DESC, rating DESC
+                                        LIMIT 5
+                                    ")->fetchAll();
+                                    
+                                    foreach ($popular_dishes as $popular):
+                                    ?>
+                                    <div class="mb-2 d-flex justify-content-between align-items-center">
+                                        <div class="text-truncate" style="max-width: 150px;">
+                                            <?= htmlspecialchars($popular['name']) ?>
+                                        </div>
+                                        <div class="text-end">
+                                            <span class="badge bg-success"><?= $popular['order_count'] ?> cmd</span>
+                                            <br>
+                                            <small class="text-muted"><?= number_format($popular['price'], 2, ',', ' ') ?> €</small>
+                                        </div>
+                                    </div>
+                                    <?php endforeach; ?>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.stat-number {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #39C1C1;
+    line-height: 1;
+}
+
+.table th {
+    background: linear-gradient(135deg, rgba(57, 193, 193, 0.08), rgba(33, 103, 103, 0.08));
+    color: #216767;
+    font-weight: 600;
+    border-bottom: 2px solid #39C1C1;
+}
+
+.table tbody tr:hover {
+    background-color: rgba(57, 193, 193, 0.05);
+}
+
+.progress {
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.progress-bar {
+    border-radius: 4px;
+}
+
+
+.badge {
+    font-weight: 500;
+    padding: 0.4em 0.8em;
+}
+
+
+@media (max-width: 768px) {
+    .table-responsive {
+        font-size: 0.85rem;
+    }
+    
+    .stat-number {
+        font-size: 1.5rem;
+    }
+    
+    .btn-group-sm .btn {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.75rem;
+    }
+}
+</style>
+
+<script>
+
+document.addEventListener('DOMContentLoaded', function() {
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+    
+   
+    const categorySelect = document.querySelector('select[name="category"]');
+    const restaurantSelect = document.querySelector('select[name="restaurant"]');
+    const availabilitySelect = document.querySelector('select[name="availability"]');
+    
+    if (categorySelect) {
+        categorySelect.addEventListener('change', function() {
+            this.form.submit();
+        });
+    }
+    
+    if (restaurantSelect) {
+        restaurantSelect.addEventListener('change', function() {
+            this.form.submit();
+        });
+    }
+    
+    if (availabilitySelect) {
+        availabilitySelect.addEventListener('change', function() {
+            this.form.submit();
+        });
+    }
+});
+</script>

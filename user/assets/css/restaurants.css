@@ -1,0 +1,79 @@
+
+.restaurant-card {
+    overflow: hidden;
+    border-radius: 15px;
+}
+
+.restaurant-card img {
+    height: 200px;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+
+.restaurant-card:hover img {
+    transform: scale(1.05);
+}
+
+.restaurant-card .card-body {
+    padding: 1.5rem;
+}
+
+
+.category-filter {
+    overflow-x: auto;
+    padding-bottom: 10px;
+}
+
+.category-filter .btn {
+    white-space: nowrap;
+    border-radius: 25px;
+    padding: 8px 16px;
+    margin-right: 8px;
+}
+
+.category-filter .btn.active {
+    background-color: var(--primary);
+    color: white;
+    border-color: var(--primary);
+}
+
+
+.delivery-badge {
+    background-color: rgba(13, 110, 253, 0.1);
+    color: var(--primary);
+    font-weight: 500;
+}
+
+.rating-badge {
+    background-color: #ffc107;
+    color: #000;
+    font-weight: 600;
+}
+
+
+.restaurant-header {
+    background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), 
+                var(--header-image);
+    background-size: cover;
+    background-position: center;
+    color: white;
+    border-radius: 15px;
+    padding: 3rem 2rem;
+}
+
+.restaurant-info {
+    background-color: rgba(255,255,255,0.9);
+    border-radius: 10px;
+    padding: 1.5rem;
+}
+
+
+@media (max-width: 768px) {
+    .restaurant-card {
+        margin-bottom: 1.5rem;
+    }
+    
+    .restaurant-header {
+        padding: 2rem 1rem;
+    }
+}

@@ -1,0 +1,198 @@
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <?= isset($restaurant) ? 'Modifier le restaurant' : 'Ajouter un nouveau restaurant' ?>
+                </h5>
+            </div>
+            <div class="card-body">
+                <?php if (!empty($errors)): ?>
+                    <div class="alert alert-danger">
+                        <ul class="mb-0">
+                            <?php foreach ($errors as $error): ?>
+                                <li><?= htmlspecialchars($error) ?></li>
+                            <?php endforeach; ?>
+                        </ul>
+                    </div>
+                <?php endif; ?>
+                
+                <form method="POST" enctype="multipart/form-data">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="name" class="form-label">Nom du restaurant *</label>
+                            <input type="text" class="form-control" id="name" name="name" 
+                                   value="<?= isset($_POST['name']) ? htmlspecialchars($_POST['name']) : (isset($restaurant) ? htmlspecialchars($restaurant['name']) : '') ?>" 
+                                   required>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="rating" class="form-label">Note (0-5)</label>
+                            <input type="number" class="form-control" id="rating" name="rating" 
+                                   step="0.1" min="0" max="5"
+                                   value="<?= isset($_POST['rating']) ? htmlspecialchars($_POST['rating']) : (isset($restaurant) ? htmlspecialchars($restaurant['rating']) : '4.0') ?>">
+                        </div>
+                        
+                        <div class="col-12">
+                            <label for="address" class="form-label">Adresse *</label>
+                            <textarea class="form-control" id="address" name="address" rows="2" required><?= isset($_POST['address']) ? htmlspecialchars($_POST['address']) : (isset($restaurant) ? htmlspecialchars($restaurant['address']) : '') ?></textarea>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="phone" class="form-label">Téléphone</label>
+                            <input type="text" class="form-control" id="phone" name="phone" 
+                                   value="<?= isset($_POST['phone']) ? htmlspecialchars($_POST['phone']) : (isset($restaurant) ? htmlspecialchars($restaurant['phone']) : '') ?>">
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="email" name="email" 
+                                   value="<?= isset($_POST['email']) ? htmlspecialchars($_POST['email']) : (isset($restaurant) ? htmlspecialchars($restaurant['email']) : '') ?>">
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="delivery_time" class="form-label">Temps de livraison</label>
+                            <input type="text" class="form-control" id="delivery_time" name="delivery_time" 
+                                   value="<?= isset($_POST['delivery_time']) ? htmlspecialchars($_POST['delivery_time']) : (isset($restaurant) ? htmlspecialchars($restaurant['delivery_time']) : '30-40 min') ?>">
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="image" class="form-label">Image du restaurant</label>
+                            <input type="file" class="form-control" id="image" name="image" accept="image/*">
+                            <small class="text-muted">Format: JPG, PNG, GIF, WebP (max 5MB)</small>
+                            
+                            <?php if (isset($restaurant) && !empty($restaurant['image'])): ?>
+                                <div class="mt-2">
+                                    <p class="mb-1">Image actuelle :</p>
+                                    <img src="../<?= htmlspecialchars($restaurant['image']) ?>" 
+                                         class="img-thumbnail" 
+                                         style="max-width: 150px; max-height: 150px;">
+                                    <div class="form-check mt-2">
+                                        <input class="form-check-input" type="checkbox" id="delete_image" name="delete_image" value="1">
+                                        <label class="form-check-label" for="delete_image">
+                                            Supprimer l'image actuelle
+                                        </label>
+                                    </div>
+                                </div>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="is_active" name="is_active" 
+                                   value="1" <?= (isset($_POST['is_active']) && $_POST['is_active']) || (isset($restaurant) && $restaurant['is_active']) ? 'checked' : 'checked' ?>>
+                            <label class="form-check-label" for="is_active">Restaurant actif</label>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check-circle"></i> 
+                            <?= isset($restaurant) ? 'Mettre à jour' : 'Ajouter le restaurant' ?>
+                        </button>
+                        <a href="<?= isset($restaurant) ? 'restaurant_details.php?id=' . $restaurant['id'] : 'restaurants.php' ?>" 
+                           class="btn btn-secondary">
+                            Annuler
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+       
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Aperçu</h5>
+            </div>
+            <div class="card-body">
+                <div class="text-center mb-3">
+                    <div id="imagePreview" class="restaurant-image-preview bg-light rounded d-flex align-items-center justify-content-center" 
+                         style="height: 150px;">
+                        <?php if (isset($restaurant) && !empty($restaurant['image'])): ?>
+                            <img src="../<?= htmlspecialchars($restaurant['image']) ?>" 
+                                 class="img-fluid rounded" 
+                                 style="max-height: 150px; object-fit: cover;">
+                        <?php else: ?>
+                            <i class="bi bi-shop text-muted" style="font-size: 3rem;"></i>
+                        <?php endif; ?>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <h6 id="previewName" class="mb-1">
+                        <?= isset($restaurant) ? htmlspecialchars($restaurant['name']) : 'Nom du restaurant' ?>
+                    </h6>
+                    <p id="previewAddress" class="text-muted small mb-2">
+                        <?= isset($restaurant) ? htmlspecialchars($restaurant['address']) : 'Adresse apparaîtra ici...' ?>
+                    </p>
+                    <div class="d-flex justify-content-between">
+                        <span id="previewRating" class="fw-bold">
+                            <?= isset($restaurant) ? number_format($restaurant['rating'], 1) . '/5' : '4.0/5' ?>
+                        </span>
+                        <span id="previewTime" class="text-muted">
+                            <?= isset($restaurant) ? htmlspecialchars($restaurant['delivery_time']) : '30-40 min' ?>
+                        </span>
+                    </div>
+                </div>
+                
+                <hr>
+                
+                <div class="info-box">
+                    <h6>Conseils :</h6>
+                    <ul class="small text-muted">
+                        <li>Utilisez une photo attractive du restaurant</li>
+                        <li>Indiquez des horaires de livraison réalistes</li>
+                        <li>Vérifiez la validité de l'email et du téléphone</li>
+                        <li>Les restaurants inactifs n'apparaîtront pas aux clients</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+
+document.addEventListener('DOMContentLoaded', function() {
+    const nameInput = document.getElementById('name');
+    const addressInput = document.getElementById('address');
+    const ratingInput = document.getElementById('rating');
+    const deliveryTimeInput = document.getElementById('delivery_time');
+    const imageInput = document.getElementById('image');
+    const imagePreview = document.getElementById('imagePreview');
+    
+    const previewName = document.getElementById('previewName');
+    const previewAddress = document.getElementById('previewAddress');
+    const previewRating = document.getElementById('previewRating');
+    const previewTime = document.getElementById('previewTime');
+    
+    function updatePreview() {
+        previewName.textContent = nameInput.value || 'Nom du restaurant';
+        previewAddress.textContent = addressInput.value || 'Adresse apparaîtra ici...';
+        previewRating.textContent = parseFloat(ratingInput.value || 4.0).toFixed(1) + '/5';
+        previewTime.textContent = deliveryTimeInput.value || '30-40 min';
+    }
+    
+    nameInput.addEventListener('input', updatePreview);
+    addressInput.addEventListener('input', updatePreview);
+    ratingInput.addEventListener('input', updatePreview);
+    deliveryTimeInput.addEventListener('input', updatePreview);
+    
+  
+    imageInput.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                imagePreview.innerHTML = `<img src="${e.target.result}" class="img-fluid rounded" style="max-height: 150px; object-fit: cover;">`;
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+    
+    updatePreview();
+});
+</script>

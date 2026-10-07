@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Test Panier</title>
+</head>
+<body>
+    <h1>Test du Panier</h1>
+    
+    <div>
+        <button onclick="testAddToCart()">Tester Ajout au Panier</button>
+        <button onclick="testGetCartCount()">Tester Compteur</button>
+        <button onclick="testSwitchRestaurant()">Tester Changement Restaurant</button>
+        <button onclick="clearCart()">Vider Panier</button>
+    </div>
+    
+    <div id="result" style="margin-top: 20px; padding: 10px; border: 1px solid #ccc;"></div>
+    
+    <script>
+        function logResult(text) {
+            document.getElementById('result').innerHTML += `<div>${text}</div>`;
+        }
+        
+        async function testAddToCart() {
+            try {
+                const response = await fetch('ajax/add_to_cart.php', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ dish_id: 1, quantity: 1 })
+                });
+                const data = await response.json();
+                logResult(`Add to Cart: ${JSON.stringify(data)}`);
+            } catch (error) {
+                logResult(`Erreur: ${error.message}`);
+            }
+        }
+        
+        async function testGetCartCount() {
+            try {
+                const response = await fetch('ajax/get_cart_count.php');
+                const data = await response.json();
+                logResult(`Cart Count: ${data.count}`);
+            } catch (error) {
+                logResult(`Erreur: ${error.message}`);
+            }
+        }
+        
+        async function testSwitchRestaurant() {
+            try {
+                const response = await fetch('ajax/switch_restaurant.php', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ dish_id: 2, quantity: 1 })
+                });
+                const data = await response.json();
+                logResult(`Switch Restaurant: ${JSON.stringify(data)}`);
+            } catch (error) {
+                logResult(`Erreur: ${error.message}`);
+            }
+        }
+        
+        async function clearCart() {
+            try {
+                const response = await fetch('ajax/remove_from_cart.php', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ dish_id: 'all' })
+                });
+                const data = await response.json();
+                logResult(`Clear Cart: ${JSON.stringify(data)}`);
+            } catch (error) {
+                logResult(`Erreur: ${error.message}`);
+            }
+        }
+    </script>
+</body>
+</html>

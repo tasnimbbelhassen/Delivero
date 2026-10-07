@@ -1,0 +1,356 @@
+<div class="row">
+    <div class="col-lg-3">
+      
+        <div class="card mb-4">
+            <div class="card-body">
+                <div class="list-group list-group-flush">
+                    <a href="#general" class="list-group-item list-group-item-action active" data-bs-toggle="list">
+                        <i class="bi bi-gear me-2"></i> Général
+                    </a>
+                    <a href="#notifications" class="list-group-item list-group-item-action" data-bs-toggle="list">
+                        <i class="bi bi-bell me-2"></i> Notifications
+                    </a>
+                    <a href="#security" class="list-group-item list-group-item-action" data-bs-toggle="list">
+                        <i class="bi bi-shield me-2"></i> Sécurité
+                    </a>
+                    <a href="#appearance" class="list-group-item list-group-item-action" data-bs-toggle="list">
+                        <i class="bi bi-palette me-2"></i> Apparence
+                    </a>
+                    <a href="#backup" class="list-group-item list-group-item-action" data-bs-toggle="list">
+                        <i class="bi bi-download me-2"></i> Sauvegarde
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        
+        <div class="card">
+            <div class="card-body">
+                <h6 class="card-title">
+                    <i class="bi bi-info-circle"></i> Informations système
+                </h6>
+                <table class="table table-sm">
+                    <tr>
+                        <td>Version</td>
+                        <td class="text-end">Delivero 1.0</td>
+                    </tr>
+                    <tr>
+                        <td>PHP</td>
+                        <td class="text-end"><?= phpversion() ?></td>
+                    </tr>
+                    <tr>
+                        <td>Base de données</td>
+                        <td class="text-end">MySQL</td>
+                    </tr>
+                    <tr>
+                        <td>Serveur</td>
+                        <td class="text-end"><?= $_SERVER['SERVER_SOFTWARE'] ?></td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-9">
+        
+        <div class="tab-content">
+            
+            <div class="tab-pane fade show active" id="general">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="bi bi-gear"></i> Paramètres généraux
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <?php if ($success): ?>
+                            <div class="alert alert-success">
+                                <i class="bi bi-check-circle"></i>
+                                Paramètres mis à jour avec succès !
+                            </div>
+                        <?php endif; ?>
+                        
+                        <form method="POST">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">Nom du site</label>
+                                    <input type="text" class="form-control" 
+                                           value="Delivero" readonly>
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <label class="form-label">Devise</label>
+                                    <select class="form-select">
+                                        <option value="EUR" selected>Euro (€)</option>
+                                        <option value="USD">Dollar ($)</option>
+                                        <option value="TND">Dinar tunisien (DT)</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <label class="form-label">Fuseau horaire</label>
+                                    <select class="form-select">
+                                        <option value="Europe/Paris" selected>Europe/Paris (GMT+1)</option>
+                                        <option value="Africa/Tunis">Africa/Tunis (GMT+1)</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <label class="form-label">Langue</label>
+                                    <select class="form-select">
+                                        <option value="fr" selected>Français</option>
+                                        <option value="en">English</option>
+                                        <option value="ar">العربية</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="col-12">
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="maintenance" checked>
+                                        <label class="form-check-label" for="maintenance">
+                                            Site en maintenance
+                                        </label>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-12">
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="new_orders" checked>
+                                        <label class="form-check-label" for="new_orders">
+                                            Accepter de nouvelles commandes
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-4">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="bi bi-save"></i> Enregistrer les modifications
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            
+            <div class="tab-pane fade" id="notifications">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="bi bi-bell"></i> Paramètres de notification
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-4">
+                            <h6>Notifications par email</h6>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" id="notif_new_order" checked>
+                                <label class="form-check-label" for="notif_new_order">
+                                    Nouvelle commande
+                                </label>
+                            </div>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" id="notif_order_update" checked>
+                                <label class="form-check-label" for="notif_order_update">
+                                    Mise à jour de commande
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="notif_system" checked>
+                                <label class="form-check-label" for="notif_system">
+                                    Alertes système
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <h6>Notifications dans l'admin</h6>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" id="notif_admin_new" checked>
+                                <label class="form-check-label" for="notif_admin_new">
+                                    Nouveaux utilisateurs
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="notif_admin_review" checked>
+                                <label class="form-check-label" for="notif_admin_review">
+                                    Nouveaux avis
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <button type="button" class="btn btn-primary">
+                            <i class="bi bi-save"></i> Enregistrer
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+           
+            <div class="tab-pane fade" id="security">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="bi bi-shield"></i> Paramètres de sécurité
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle"></i>
+                            Ces paramètres affectent la sécurité de votre plateforme.
+                        </div>
+                        
+                        <div class="mb-4">
+                            <h6>Connexion</h6>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" id="security_2fa">
+                                <label class="form-check-label" for="security_2fa">
+                                    Authentification à deux facteurs
+                                </label>
+                            </div>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" id="security_captcha" checked>
+                                <label class="form-check-label" for="security_captcha">
+                                    CAPTCHA sur la connexion
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="security_logs" checked>
+                                <label class="form-check-label" for="security_logs">
+                                    Journaliser les connexions
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <h6>Session</h6>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">Durée de session (minutes)</label>
+                                    <input type="number" class="form-control" value="60" min="5" max="1440">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Tentatives de connexion max</label>
+                                    <input type="number" class="form-control" value="5" min="1" max="10">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <button type="button" class="btn btn-primary">
+                            <i class="bi bi-save"></i> Enregistrer
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            
+            <div class="tab-pane fade" id="appearance">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="bi bi-palette"></i> Apparence
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-4">
+                            <h6>Couleur principale</h6>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">Couleur primaire</label>
+                                    <input type="color" class="form-control form-control-color" 
+                                           value="#39C1C1" title="Choisir une couleur">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Couleur secondaire</label>
+                                    <input type="color" class="form-control form-control-color" 
+                                           value="#216767" title="Choisir une couleur">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <h6>Logo</h6>
+                            <div class="mb-3">
+                                <input type="file" class="form-control" accept="image/*">
+                                <div class="form-text">
+                                    Taille recommandée : 200x60 pixels
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <button type="button" class="btn btn-primary">
+                            <i class="bi bi-save"></i> Enregistrer
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            
+            <div class="tab-pane fade" id="backup">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="bi bi-download"></i> Sauvegarde et restauration
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="alert alert-warning">
+                            <i class="bi bi-exclamation-triangle"></i>
+                            Les sauvegardes sont essentielles pour protéger vos données.
+                        </div>
+                        
+                        <div class="mb-4">
+                            <h6>Sauvegarde manuelle</h6>
+                            <p class="text-muted mb-3">
+                                Téléchargez une copie complète de votre base de données.
+                            </p>
+                            <a href="backup.php" class="btn btn-primary">
+                                <i class="bi bi-download"></i> Créer une sauvegarde
+                            </a>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <h6>Restaurer</h6>
+                            <p class="text-muted mb-3">
+                                Restaurez votre base de données à partir d'un fichier de sauvegarde.
+                            </p>
+                            <div class="mb-3">
+                                <input type="file" class="form-control" accept=".sql,.zip">
+                            </div>
+                            <button type="button" class="btn btn-warning">
+                                <i class="bi bi-upload"></i> Restaurer
+                            </button>
+                        </div>
+                        
+                        <div>
+                            <h6>Automatisation</h6>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="auto_backup">
+                                <label class="form-check-label" for="auto_backup">
+                                    Sauvegarde automatique quotidienne
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.form-control-color {
+    height: 45px;
+    padding: 0.375rem;
+}
+
+.tab-pane {
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+</style>

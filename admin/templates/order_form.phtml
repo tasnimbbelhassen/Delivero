@@ -1,0 +1,341 @@
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-pencil"></i> Modifier la commande
+                    <span class="badge bg-primary ms-2">#<?= str_pad($order['id'], 6, '0', STR_PAD_LEFT) ?></span>
+                </h5>
+            </div>
+            <div class="card-body">
+                <?php if (!empty($errors)): ?>
+                    <div class="alert alert-danger">
+                        <ul class="mb-0">
+                            <?php foreach ($errors as $error): ?>
+                                <li><?= htmlspecialchars($error) ?></li>
+                            <?php endforeach; ?>
+                        </ul>
+                    </div>
+                <?php endif; ?>
+                
+                <form method="POST">
+                    <div class="row g-3">
+                        
+                        <div class="col-md-6">
+                            <label class="form-label">Client</label>
+                            <div class="form-control bg-light" readonly>
+                                <strong><?= htmlspecialchars($order['full_name'] ?? $order['username']) ?></strong>
+                                <?php if ($order['email']): ?>
+                                    <br><small class="text-muted"><?= htmlspecialchars($order['email']) ?></small>
+                                <?php endif; ?>
+                                <?php if ($order['phone']): ?>
+                                    <br><small class="text-muted"><?= htmlspecialchars($order['phone']) ?></small>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="status" class="form-label">Statut de la commande *</label>
+                            <select class="form-select" id="status" name="status" required>
+                                <option value="pending" <?= ($order['status'] == 'pending') ? 'selected' : '' ?>>En attente</option>
+                                <option value="preparing" <?= ($order['status'] == 'preparing') ? 'selected' : '' ?>>Préparation</option>
+                                <option value="delivering" <?= ($order['status'] == 'delivering') ? 'selected' : '' ?>>Livraison</option>
+                                <option value="completed" <?= ($order['status'] == 'completed') ? 'selected' : '' ?>>Terminé</option>
+                                <option value="cancelled" <?= ($order['status'] == 'cancelled') ? 'selected' : '' ?>>Annulé</option>
+                            </select>
+                        </div>
+                        
+                        
+                        <div class="col-12">
+                            <label for="delivery_address" class="form-label">Adresse de livraison *</label>
+                            <textarea class="form-control" id="delivery_address" name="delivery_address" 
+                                      rows="3" required><?= htmlspecialchars($order['delivery_address'] ?? '') ?></textarea>
+                        </div>
+                        
+                       
+                        <div class="col-md-6">
+                            <label for="delivery_time" class="form-label">Heure de livraison prévue</label>
+                            <input type="time" class="form-control" id="delivery_time" name="delivery_time" 
+                                   value="<?= htmlspecialchars($order['delivery_time'] ? date('H:i', strtotime($order['delivery_time'])) : '') ?>">
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="payment_method" class="form-label">Méthode de paiement</label>
+                            <select class="form-select" id="payment_method" name="payment_method">
+                                <option value="">Sélectionner...</option>
+                                <option value="Carte bancaire" <?= ($order['payment_method'] == 'Carte bancaire') ? 'selected' : '' ?>>Carte bancaire</option>
+                                <option value="Espèces" <?= ($order['payment_method'] == 'Espèces') ? 'selected' : '' ?>>Espèces</option>
+                                <option value="PayPal" <?= ($order['payment_method'] == 'PayPal') ? 'selected' : '' ?>>PayPal</option>
+                                <option value="Chèque" <?= ($order['payment_method'] == 'Chèque') ? 'selected' : '' ?>>Chèque</option>
+                                <option value="Virement" <?= ($order['payment_method'] == 'Virement') ? 'selected' : '' ?>>Virement</option>
+                            </select>
+                        </div>
+                        
+                        <!-- Montant total -->
+                        <div class="col-md-6">
+                            <label for="total" class="form-label">Montant total (€) *</label>
+                            <div class="input-group">
+                                <input type="number" class="form-control" id="total" name="total" 
+                                       step="0.01" min="0.01" value="<?= htmlspecialchars($order['total'] ?? '0.00') ?>" required>
+                                <span class="input-group-text">€</span>
+                            </div>
+                        </div>
+                        
+                        
+                        <div class="col-md-6">
+                            <label class="form-label">Date de création</label>
+                            <div class="form-control bg-light" readonly>
+                                <?= date('d/m/Y à H:i', strtotime($order['created_at'])) ?>
+                            </div>
+                        </div>
+                        
+                      
+                        <div class="col-12">
+                            <label for="notes" class="form-label">Notes supplémentaires</label>
+                            <textarea class="form-control" id="notes" name="notes" 
+                                      rows="3" placeholder="Instructions spéciales, allergies, etc."><?= htmlspecialchars($order['notes'] ?? '') ?></textarea>
+                        </div>
+                    </div>
+                    
+                   
+                    <div class="mt-4">
+                        <h6 class="mb-3">Articles de la commande (<?= count($items) ?>)</h6>
+                        
+                        <?php if (empty($items)): ?>
+                            <div class="alert alert-warning">
+                                <i class="bi bi-exclamation-triangle"></i> Aucun article dans cette commande.
+                            </div>
+                        <?php else: ?>
+                            <div class="table-responsive">
+                                <table class="table table-sm">
+                                    <thead>
+                                        <tr>
+                                            <th>Article</th>
+                                            <th class="text-center">Quantité</th>
+                                            <th class="text-end">Prix unitaire</th>
+                                            <th class="text-end">Sous-total</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?php 
+                                        $total_amount = 0;
+                                        foreach ($items as $item): 
+                                            $item_subtotal = $item['quantity'] * $item['price'];
+                                            $total_amount += $item_subtotal;
+                                        ?>
+                                        <tr>
+                                            <td>
+                                                <?= htmlspecialchars($item['dish_name'] ?? 'Article supprimé') ?>
+                                            </td>
+                                            <td class="text-center">
+                                                <span class="badge bg-primary rounded-pill"><?= $item['quantity'] ?></span>
+                                            </td>
+                                            <td class="text-end">
+                                                <?= number_format($item['price'], 2, ',', ' ') ?> €
+                                            </td>
+                                            <td class="text-end">
+                                                <?= number_format($item_subtotal, 2, ',', ' ') ?> €
+                                            </td>
+                                        </tr>
+                                        <?php endforeach; ?>
+                                    </tbody>
+                                    <tfoot>
+                                        <tr>
+                                            <td colspan="3" class="text-end fw-bold">Total calculé :</td>
+                                            <td class="text-end fw-bold">
+                                                <?= number_format($total_amount, 2, ',', ' ') ?> €
+                                            </td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                            <div class="alert alert-info">
+                                <i class="bi bi-info-circle"></i> Le total calculé est de <?= number_format($total_amount, 2, ',', ' ') ?> €.
+                                Si vous modifiez le montant total ci-dessus, assurez-vous qu'il correspond à la valeur réelle.
+                            </div>
+                        <?php endif; ?>
+                    </div>
+                    
+                    
+                    <div class="mt-4">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="bi bi-check-circle"></i> Enregistrer les modifications
+                                </button>
+                                <a href="order_details.php?id=<?= $order['id'] ?>" class="btn btn-secondary">
+                                    Annuler
+                                </a>
+                            </div>
+                            <div class="btn-group">
+                                <a href="orders.php" class="btn btn-outline-secondary">
+                                    <i class="bi bi-arrow-left"></i> Retour aux commandes
+                                </a>
+                                <a href="delete_order.php?id=<?= $order['id'] ?>" 
+                                   class="btn btn-outline-danger"
+                                   onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette commande ?')">
+                                    <i class="bi bi-trash"></i> Supprimer
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-info-circle"></i> Informations
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <h6>Numéro de commande</h6>
+                    <p class="mb-0">
+                        <?php if ($order['order_number']): ?>
+                            <span class="badge bg-dark fs-6"><?= htmlspecialchars($order['order_number']) ?></span>
+                        <?php else: ?>
+                            <span class="text-muted">Aucun numéro</span>
+                        <?php endif; ?>
+                    </p>
+                </div>
+                
+                <div class="mb-3">
+                    <h6>Statut actuel</h6>
+                    <?php 
+                    $statusConfig = [
+                        'pending' => ['class' => 'warning', 'icon' => 'clock', 'text' => 'En attente'],
+                        'preparing' => ['class' => 'info', 'icon' => 'egg-fried', 'text' => 'Préparation'],
+                        'delivering' => ['class' => 'primary', 'icon' => 'truck', 'text' => 'Livraison'],
+                        'completed' => ['class' => 'success', 'icon' => 'check-circle', 'text' => 'Terminé'],
+                        'cancelled' => ['class' => 'danger', 'icon' => 'x-circle', 'text' => 'Annulé']
+                    ];
+                    $config = $statusConfig[$order['status']];
+                    ?>
+                    <span class="badge bg-<?= $config['class'] ?> fs-6">
+                        <i class="bi bi-<?= $config['icon'] ?>"></i>
+                        <?= $config['text'] ?>
+                    </span>
+                </div>
+                
+                <div class="mb-3">
+                    <h6>Récapitulatif</h6>
+                    <div class="small">
+                        <div class="d-flex justify-content-between mb-1">
+                            <span>Nombre d'articles :</span>
+                            <strong><?= count($items) ?></strong>
+                        </div>
+                        <div class="d-flex justify-content-between mb-1">
+                            <span>Quantité totale :</span>
+                            <strong><?= array_sum(array_column($items, 'quantity')) ?></strong>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <span>Montant actuel :</span>
+                            <strong class="text-success"><?= number_format($order['total'], 2, ',', ' ') ?> €</strong>
+                        </div>
+                    </div>
+                </div>
+                
+                <hr>
+                
+                <div class="small text-muted">
+                    <h6>Actions rapides :</h6>
+                    <div class="d-grid gap-2">
+                        <a href="order_details.php?id=<?= $order['id'] ?>" class="btn btn-sm btn-outline-info">
+                            <i class="bi bi-eye"></i> Voir les détails
+                        </a>
+                        <a href="update_order_status.php?id=<?= $order['id'] ?>&status=completed" 
+                           class="btn btn-sm btn-outline-success" 
+                           onclick="return confirm('Marquer cette commande comme terminée ?')">
+                            <i class="bi bi-check-circle"></i> Marquer comme terminée
+                        </a>
+                        <a href="update_order_status.php?id=<?= $order['id'] ?>&status=cancelled" 
+                           class="btn btn-sm btn-outline-danger" 
+                           onclick="return confirm('Annuler cette commande ?')">
+                            <i class="bi bi-x-circle"></i> Annuler la commande
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+       
+        <div class="card mt-3">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-clock-history"></i> Historique
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="small">
+                    <div class="mb-2">
+                        <strong>Création :</strong><br>
+                        <span class="text-muted"><?= date('d/m/Y à H:i', strtotime($order['created_at'])) ?></span>
+                    </div>
+                    <div class="mb-2">
+                        <strong>Dernière modification :</strong><br>
+                        <span class="text-muted">
+                            <?= $order['updated_at'] ? date('d/m/Y à H:i', strtotime($order['updated_at'])) : 'Jamais modifiée' ?>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.form-control[readonly] {
+    background-color: #f8f9fa;
+    border-color: #e9ecef;
+    cursor: not-allowed;
+}
+
+.table-sm th,
+.table-sm td {
+    padding: 0.5rem;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+
+    const statusSelect = document.getElementById('status');
+    const statusBadge = document.querySelector('.badge.fs-6');
+    
+    statusSelect.addEventListener('change', function() {
+        const status = this.value;
+        const statusConfig = {
+            'pending': { class: 'warning', icon: 'clock', text: 'En attente' },
+            'preparing': { class: 'info', icon: 'egg-fried', text: 'Préparation' },
+            'delivering': { class: 'primary', icon: 'truck', text: 'Livraison' },
+            'completed': { class: 'success', icon: 'check-circle', text: 'Terminé' },
+            'cancelled': { class: 'danger', icon: 'x-circle', text: 'Annulé' }
+        };
+        
+        const config = statusConfig[status];
+        if (config && statusBadge) {
+            statusBadge.className = `badge bg-${config.class} fs-6`;
+            statusBadge.innerHTML = `<i class="bi bi-${config.icon}"></i> ${config.text}`;
+        }
+    });
+    
+    
+    const totalInput = document.getElementById('total');
+    const calculatedTotal = <?= $total_amount ?>;
+    
+    totalInput.addEventListener('change', function() {
+        const enteredTotal = parseFloat(this.value);
+        const calculatedTotal = <?= $total_amount ?>;
+        
+        if (enteredTotal !== calculatedTotal) {
+            if (!confirm(`Le montant saisi (${enteredTotal.toFixed(2)} €) diffère du montant calculé (${calculatedTotal.toFixed(2)} €). Continuer ?`)) {
+                this.value = calculatedTotal.toFixed(2);
+            }
+        }
+    });
+});
+</script>

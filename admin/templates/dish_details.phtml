@@ -1,0 +1,378 @@
+<div class="row">
+    <div class="col-lg-8">
+      
+        <div class="card mb-4">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <div class="d-flex align-items-center mb-2">
+                            <h1 class="h3 mb-0 me-3"><?= htmlspecialchars($dish['name']) ?></h1>
+                            <?php if ($dish['is_special']): ?>
+                                <span class="badge bg-warning">
+                                    <i class="bi bi-star"></i> Spécial
+                                </span>
+                            <?php endif; ?>
+                            <?php if ($dish['is_vegetarian']): ?>
+                                <span class="badge bg-success ms-1">
+                                    <i class="bi bi-flower1"></i> Végétarien
+                                </span>
+                            <?php endif; ?>
+                            <?php if (!$dish['is_available']): ?>
+                                <span class="badge bg-danger ms-1">
+                                    <i class="bi bi-x-circle"></i> Indisponible
+                                </span>
+                            <?php endif; ?>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <span class="badge bg-info">
+                                <i class="bi bi-tags"></i> <?= htmlspecialchars($dish['category_name']) ?>
+                            </span>
+                            <?php if ($dish['restaurant_name']): ?>
+                                <span class="badge bg-secondary ms-2">
+                                    <i class="bi bi-shop"></i> <?= htmlspecialchars($dish['restaurant_name']) ?>
+                                </span>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                    
+                    <div class="text-end">
+                        <div class="h2 text-primary mb-1">
+                            <?= number_format($dish['price'], 2, ',', ' ') ?> €
+                        </div>
+                        <small class="text-muted">Prix TTC</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row">
+           
+            <div class="col-md-6">
+                <div class="card mb-4">
+                    <div class="card-body text-center p-4">
+                        <?php if (!empty($dish['image'])): ?>
+                            <img src="../<?= htmlspecialchars($dish['image']) ?>" 
+                                 alt="<?= htmlspecialchars($dish['name']) ?>"
+                                 class="img-fluid rounded" 
+                                 style="max-height: 300px; object-fit: cover;">
+                        <?php else: ?>
+                            <div class="dish-image-placeholder-large">
+                                <i class="bi bi-egg-fried"></i>
+                                <p class="mt-3 text-muted">Aucune image</p>
+                            </div>
+                        <?php endif; ?>
+                    </div>
+                </div>
+                
+              
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h6 class="card-title mb-0">
+                            <i class="bi bi-bar-chart"></i> Statistiques
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row text-center">
+                            <div class="col-6">
+                                <div class="stat-value"><?= $dish['order_count'] ?></div>
+                                <small class="text-muted">Commandes</small>
+                            </div>
+                            <div class="col-6">
+                                <div class="stat-value"><?= number_format($dish['rating'], 1) ?></div>
+                                <small class="text-muted">Note moyenne</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            
+            <div class="col-md-6">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h6 class="card-title mb-0">
+                            <i class="bi bi-info-circle"></i> Informations détaillées
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <dl class="row mb-0">
+                            <dt class="col-sm-5">Description :</dt>
+                            <dd class="col-sm-7">
+                                <?= !empty($dish['description']) ? 
+                                    nl2br(htmlspecialchars($dish['description'])) : 
+                                    '<span class="text-muted">Aucune description</span>' ?>
+                            </dd>
+                            
+                            <dt class="col-sm-5">Ingrédients :</dt>
+                            <dd class="col-sm-7">
+                                <?= !empty($dish['ingredients']) ? 
+                                    htmlspecialchars($dish['ingredients']) : 
+                                    '<span class="text-muted">Non spécifié</span>' ?>
+                            </dd>
+                            
+                            <dt class="col-sm-5">Temps de préparation :</dt>
+                            <dd class="col-sm-7">
+                                <i class="bi bi-clock"></i> <?= $dish['preparation_time'] ?> minutes
+                            </dd>
+                            
+                            <dt class="col-sm-5">Calories :</dt>
+                            <dd class="col-sm-7">
+                                <?= !empty($dish['calories']) ? 
+                                    $dish['calories'] . ' kcal' : 
+                                    '<span class="text-muted">Non spécifié</span>' ?>
+                            </dd>
+                            
+                            <dt class="col-sm-5">Date d'ajout :</dt>
+                            <dd class="col-sm-7">
+                                <i class="bi bi-calendar"></i> 
+                                <?= date('d/m/Y à H:i', strtotime($dish['created_at'])) ?>
+                            </dd>
+                            
+                            <dt class="col-sm-5">Statut :</dt>
+                            <dd class="col-sm-7">
+                                <?php if ($dish['is_available']): ?>
+                                    <span class="badge bg-success">
+                                        <i class="bi bi-check-circle"></i> Disponible
+                                    </span>
+                                <?php else: ?>
+                                    <span class="badge bg-danger">
+                                        <i class="bi bi-x-circle"></i> Indisponible
+                                    </span>
+                                <?php endif; ?>
+                            </dd>
+                        </dl>
+                    </div>
+                </div>
+                
+               
+                <div class="card">
+                    <div class="card-header">
+                        <h6 class="card-title mb-0">
+                            <i class="bi bi-lightning"></i> Actions rapides
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-grid gap-2">
+                            <a href="edit_dish.php?id=<?= $dish['id'] ?>" class="btn btn-primary">
+                                <i class="bi bi-pencil"></i> Modifier ce plat
+                            </a>
+                            <a href="dishes.php" class="btn btn-outline-secondary">
+                                <i class="bi bi-list"></i> Retour à la liste
+                            </a>
+                            <div class="btn-group">
+                                <a href="delete_dish.php?id=<?= $dish['id'] ?>" 
+                                   class="btn btn-outline-danger"
+                                   onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce plat ?')">
+                                    <i class="bi bi-trash"></i> Supprimer
+                                </a>
+                                <button type="button" class="btn btn-outline-danger dropdown-toggle dropdown-toggle-split" 
+                                        data-bs-toggle="dropdown">
+                                    <span class="visually-hidden">Options</span>
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" href="#" 
+                                           onclick="toggleAvailability(<?= $dish['id'] ?>, <?= $dish['is_available'] ? 0 : 1 ?>)">
+                                        <?= $dish['is_available'] ? 
+                                            '<i class="bi bi-x-circle"></i> Rendre indisponible' : 
+                                            '<i class="bi bi-check-circle"></i> Rendre disponible' ?>
+                                    </a></li>
+                                    <li><a class="dropdown-item" href="#"
+                                           onclick="toggleSpecial(<?= $dish['id'] ?>, <?= $dish['is_special'] ? 0 : 1 ?>)">
+                                        <?= $dish['is_special'] ? 
+                                            '<i class="bi bi-star"></i> Retirer spécial' : 
+                                            '<i class="bi bi-star-fill"></i> Marquer spécial' ?>
+                                    </a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+   
+    <div class="col-lg-4">
+        
+        <div class="card mb-4">
+            <div class="card-header">
+                <h6 class="card-title mb-0">
+                    <i class="bi bi-graph-up"></i> Performances
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="performance-item mb-3">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span>Popularité</span>
+                        <span><?= $dish['order_count'] ?> commandes</span>
+                    </div>
+                    <div class="progress" style="height: 8px;">
+                        <div class="progress-bar bg-success" 
+                             style="width: <?= min($dish['order_count'] * 10, 100) ?>%"></div>
+                    </div>
+                </div>
+                
+                <div class="performance-item mb-3">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span>Satisfaction clients</span>
+                        <span><?= number_format($dish['rating'], 1) ?>/5</span>
+                    </div>
+                    <div class="progress" style="height: 8px;">
+                        <div class="progress-bar bg-warning" 
+                             style="width: <?= $dish['rating'] * 20 ?>%"></div>
+                    </div>
+                </div>
+                
+                <div class="performance-item">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span>Valeur</span>
+                        <span><?= number_format($dish['price'] * $dish['order_count'], 2, ',', ' ') ?>€</span>
+                    </div>
+                    <div class="progress" style="height: 8px;">
+                        <div class="progress-bar bg-info" 
+                             style="width: <?= min($dish['order_count'] * 5, 100) ?>%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        
+        <div class="card mb-4">
+            <div class="card-header">
+                <h6 class="card-title mb-0">
+                    <i class="bi bi-card-checklist"></i> Détails complémentaires
+                </h6>
+            </div>
+            <div class="card-body">
+                <table class="table table-sm">
+                    <tr>
+                        <td><i class="bi bi-hash text-muted"></i></td>
+                        <td>ID du plat</td>
+                        <td class="text-end"><strong>#<?= str_pad($dish['id'], 6, '0', STR_PAD_LEFT) ?></strong></td>
+                    </tr>
+                    <tr>
+                        <td><i class="bi bi-cash-coin text-muted"></i></td>
+                        <td>Prix de revient estimé</td>
+                        <td class="text-end">
+                            <?= number_format($dish['price'] * 0.4, 2, ',', ' ') ?>€
+                            <small class="text-muted d-block">(40% du prix)</small>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><i class="bi bi-currency-euro text-muted"></i></td>
+                        <td>Marge estimée</td>
+                        <td class="text-end">
+                            <?= number_format($dish['price'] * 0.6, 2, ',', ' ') ?>€
+                            <small class="text-muted d-block">(60% du prix)</small>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><i class="bi bi-calendar-event text-muted"></i></td>
+                        <td>Dernière modification</td>
+                        <td class="text-end">
+                            <?= date('d/m/Y', strtotime($dish['created_at'])) ?>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        
+       
+        <div class="card">
+            <div class="card-header">
+                <h6 class="card-title mb-0">
+                    <i class="bi bi-qr-code"></i> Code QR
+                </h6>
+            </div>
+            <div class="card-body text-center">
+                <div class="mb-3" id="qrcode"></div>
+                <p class="small text-muted mb-0">
+                    Scannez pour partager ce plat
+                    <br>
+                    <small>ID: <?= $dish['id'] ?></small>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+<script>
+
+const qrCodeDiv = document.getElementById('qrcode');
+const url = window.location.href;
+QRCode.toCanvas(qrCodeDiv, url, { width: 150 }, function(error) {
+    if (error) console.error(error);
+});
+
+
+function toggleAvailability(dishId, newStatus) {
+    if (confirm(newStatus ? 'Rendre ce plat disponible ?' : 'Rendre ce plat indisponible ?')) {
+        fetch(`toggle_availability.php?id=${dishId}&status=${newStatus}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                } else {
+                    alert('Erreur : ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Une erreur est survenue');
+            });
+    }
+}
+
+
+function toggleSpecial(dishId, newStatus) {
+    if (confirm(newStatus ? 'Marquer ce plat comme spécial ?' : 'Retirer le statut spécial ?')) {
+        fetch(`toggle_special.php?id=${dishId}&status=${newStatus}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                } else {
+                    alert('Erreur : ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Une erreur est survenue');
+            });
+    }
+}
+</script>
+
+<style>
+.dish-image-placeholder-large {
+    height: 300px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: #f8f9fa;
+    border-radius: 10px;
+    color: #6c757d;
+}
+
+.dish-image-placeholder-large i {
+    font-size: 5rem;
+}
+
+.stat-value {
+    font-size: 2rem;
+    font-weight: bold;
+    color: var(--primary-green);
+}
+
+.performance-item .progress {
+    border-radius: 4px;
+}
+
+.progress-bar {
+    border-radius: 4px;
+}
+</style>

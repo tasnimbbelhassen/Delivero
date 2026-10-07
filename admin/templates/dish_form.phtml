@@ -1,0 +1,507 @@
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-egg-fried"></i> 
+                    <?= isset($dish) ? 'Modifier le plat' : 'Ajouter un nouveau plat' ?>
+                </h5>
+            </div>
+            <div class="card-body">
+                <?php if (!empty($errors)): ?>
+                    <div class="alert alert-danger">
+                        <i class="bi bi-exclamation-triangle"></i>
+                        <strong>Veuillez corriger les erreurs suivantes :</strong>
+                        <ul class="mb-0 mt-2">
+                            <?php foreach ($errors as $error): ?>
+                                <li><?= htmlspecialchars($error) ?></li>
+                            <?php endforeach; ?>
+                        </ul>
+                    </div>
+                <?php endif; ?>
+                
+                <?php if (isset($success) && $success): ?>
+                    <div class="alert alert-success">
+                        <i class="bi bi-check-circle"></i>
+                        Plat <?= isset($dish) ? 'modifié' : 'ajouté' ?> avec succès !
+                    </div>
+                <?php endif; ?>
+                
+                <form method="POST" enctype="multipart/form-data" id="dishForm">
+                    <div class="row g-3">
+
+                        <div class="col-md-8">
+                            <label for="name" class="form-label">
+                                <i class="bi bi-card-heading"></i> Nom du plat *
+                            </label>
+                            <input type="text" class="form-control" id="name" name="name" 
+                                   value="<?= isset($dish) ? htmlspecialchars($dish['name']) : (isset($_POST['name']) ? htmlspecialchars($_POST['name']) : '') ?>" 
+                                   required
+                                   placeholder="Ex: Pizza Margherita, Burger Deluxe...">
+                        </div>
+                        
+                        
+                        <div class="col-md-4">
+                            <label for="price" class="form-label">
+                                <i class="bi bi-tag"></i> Prix (€) *
+                            </label>
+                            <div class="input-group">
+                                <input type="number" class="form-control" id="price" name="price" 
+                                       step="0.01" min="0" max="1000"
+                                       value="<?= isset($dish) ? $dish['price'] : (isset($_POST['price']) ? $_POST['price'] : '0.00') ?>" 
+                                       required>
+                                <span class="input-group-text">€</span>
+                            </div>
+                        </div>
+                        
+                        
+                        <div class="col-md-6">
+                            <label for="category_id" class="form-label">
+                                <i class="bi bi-tags"></i> Catégorie *
+                            </label>
+                            <select class="form-select" id="category_id" name="category_id" required>
+                                <option value="">Sélectionnez une catégorie</option>
+                                <?php foreach ($categories as $category): ?>
+                                    <option value="<?= $category['id'] ?>" 
+                                        <?= (isset($dish) && $dish['category_id'] == $category['id']) || 
+                                            (isset($_POST['category_id']) && $_POST['category_id'] == $category['id']) ? 'selected' : '' ?>>
+                                        <?= htmlspecialchars($category['name']) ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                        
+                        
+                        <div class="col-md-6">
+                            <label for="restaurant_id" class="form-label">
+                                <i class="bi bi-shop"></i> Restaurant
+                            </label>
+                            <select class="form-select" id="restaurant_id" name="restaurant_id">
+                                <option value="">Sélectionnez un restaurant</option>
+                                <?php foreach ($restaurants as $restaurant): ?>
+                                    <option value="<?= $restaurant['id'] ?>"
+                                        <?= (isset($dish) && $dish['restaurant_id'] == $restaurant['id']) || 
+                                            (isset($_POST['restaurant_id']) && $_POST['restaurant_id'] == $restaurant['id']) ? 'selected' : '' ?>>
+                                        <?= htmlspecialchars($restaurant['name']) ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                        
+                        
+                        <div class="col-12">
+                            <label for="description" class="form-label">
+                                <i class="bi bi-card-text"></i> Description
+                            </label>
+                            <textarea class="form-control" id="description" name="description" 
+                                      rows="3"
+                                      placeholder="Décrivez votre plat de manière attractive..."><?= isset($dish) ? htmlspecialchars($dish['description']) : (isset($_POST['description']) ? htmlspecialchars($_POST['description']) : '') ?></textarea>
+                            <div class="form-text">
+                                Décrivez les saveurs, les ingrédients spéciaux, etc.
+                            </div>
+                        </div>
+                        
+                        
+                        <div class="col-12">
+                            <label for="ingredients" class="form-label">
+                                <i class="bi bi-list-check"></i> Ingrédients principaux
+                            </label>
+                            <textarea class="form-control" id="ingredients" name="ingredients" 
+                                      rows="2"
+                                      placeholder="Tomate, Mozzarella, Basilic, Huile d'olive..."><?= isset($dish) ? htmlspecialchars($dish['ingredients']) : (isset($_POST['ingredients']) ? htmlspecialchars($_POST['ingredients']) : '') ?></textarea>
+                            <div class="form-text">
+                                Séparés par des virgules. Mentionnez les allergènes si nécessaire.
+                            </div>
+                        </div>
+                        
+                        
+                        <div class="col-md-4">
+                            <label for="preparation_time" class="form-label">
+                                <i class="bi bi-clock"></i> Temps de préparation (min)
+                            </label>
+                            <input type="number" class="form-control" id="preparation_time" name="preparation_time" 
+                                   min="1" max="120" 
+                                   value="<?= isset($dish) ? $dish['preparation_time'] : (isset($_POST['preparation_time']) ? $_POST['preparation_time'] : '20') ?>">
+                        </div>
+                        
+                        
+                        <div class="col-md-4">
+                            <label for="calories" class="form-label">
+                                <i class="bi bi-fire"></i> Calories (optionnel)
+                            </label>
+                            <input type="number" class="form-control" id="calories" name="calories" 
+                                   min="0"
+                                   value="<?= isset($dish) ? $dish['calories'] : (isset($_POST['calories']) ? $_POST['calories'] : '') ?>"
+                                   placeholder="Ex: 450">
+                        </div>
+                        
+                        
+                        <div class="col-md-4">
+                            <label for="image" class="form-label">
+                                <i class="bi bi-image"></i> Image du plat
+                            </label>
+                            <input type="file" class="form-control" id="image" name="image" accept="image/*">
+                            <div class="form-text">
+                                Formats: JPG, PNG, GIF, WebP (max 5MB)
+                            </div>
+                        </div>
+                    </div>
+                    
+                    
+                    <div class="row mt-4">
+                        <div class="col-md-4">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="is_available" name="is_available" 
+                                       value="1" <?= (isset($dish) && $dish['is_available']) || (isset($_POST['is_available']) && $_POST['is_available']) || !isset($dish) ? 'checked' : '' ?>>
+                                <label class="form-check-label" for="is_available">
+                                    <i class="bi bi-check-circle"></i> Disponible à la vente
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="is_special" name="is_special" 
+                                       value="1" <?= (isset($dish) && $dish['is_special']) || (isset($_POST['is_special']) && $_POST['is_special']) ? 'checked' : '' ?>>
+                                <label class="form-check-label" for="is_special">
+                                    <i class="bi bi-star"></i> Plat spécial
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="is_vegetarian" name="is_vegetarian" 
+                                       value="1" <?= (isset($dish) && $dish['is_vegetarian']) || (isset($_POST['is_vegetarian']) && $_POST['is_vegetarian']) ? 'checked' : '' ?>>
+                                <label class="form-check-label" for="is_vegetarian">
+                                    <i class="bi bi-flower1"></i> Végétarien
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    
+                    <div class="mt-4 pt-3 border-top">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="bi bi-check-circle"></i> 
+                            <?= isset($dish) ? 'Mettre à jour le plat' : 'Ajouter le plat' ?>
+                        </button>
+                        <a href="dishes.php" class="btn btn-secondary">Annuler</a>
+                        
+                        <?php if (isset($dish)): ?>
+                            <a href="dish_details.php?id=<?= $dish['id'] ?>" class="btn btn-outline-info">
+                                <i class="bi bi-eye"></i> Voir le plat
+                            </a>
+                        <?php endif; ?>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    
+    <div class="col-lg-4">
+        
+        <div class="card sticky-top" style="top: 20px;">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-eye"></i> Aperçu en direct
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="text-center mb-4">
+                    <div id="imagePreview" class="dish-preview-image">
+                        <?php if (isset($dish) && !empty($dish['image'])): ?>
+                            <img src="../<?= htmlspecialchars($dish['image']) ?>" 
+                                 alt="Image actuelle" 
+                                 class="img-fluid rounded">
+                        <?php else: ?>
+                            <div class="preview-placeholder">
+                                <i class="bi bi-egg-fried"></i>
+                                <p class="mt-2 mb-0">Aperçu de l'image</p>
+                            </div>
+                        <?php endif; ?>
+                    </div>
+                </div>
+                
+                <div class="dish-preview-info">
+                    <h4 id="previewName" class="mb-2">
+                        <?= isset($dish) ? htmlspecialchars($dish['name']) : 'Nom du plat' ?>
+                    </h4>
+                    
+                    <p id="previewDescription" class="text-muted mb-3">
+                        <?= isset($dish) && !empty($dish['description']) ? 
+                            htmlspecialchars(substr($dish['description'], 0, 100)) . (strlen($dish['description']) > 100 ? '...' : '') : 
+                            'Description apparaîtra ici...' ?>
+                    </p>
+                    
+                    <div class="row g-2 mb-3">
+                        <div class="col-6">
+                            <div class="preview-price">
+                                <small class="text-muted d-block">Prix</small>
+                                <span id="previewPrice" class="h5 text-primary">
+                                    <?= isset($dish) ? number_format($dish['price'], 2, ',', ' ') : '0,00' ?> €
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="preview-time">
+                                <small class="text-muted d-block">Préparation</small>
+                                <span id="previewTime" class="h5">
+                                    <?= isset($dish) ? $dish['preparation_time'] : '20' ?> min
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="preview-details">
+                        <div class="mb-2">
+                            <small class="text-muted">Catégorie :</small>
+                            <span id="previewCategory" class="badge bg-info ms-1">
+                                <?= isset($dish) && isset($dish['category_name']) ? 
+                                    htmlspecialchars($dish['category_name']) : 'Catégorie' ?>
+                            </span>
+                        </div>
+                        
+                        <div class="mb-2">
+                            <small class="text-muted">Restaurant :</small>
+                            <span id="previewRestaurant" class="ms-1">
+                                <?= isset($dish) && isset($dish['restaurant_name']) ? 
+                                    htmlspecialchars($dish['restaurant_name']) : 'Restaurant' ?>
+                            </span>
+                        </div>
+                        
+                        <div class="mb-2">
+                            <small class="text-muted">Ingrédients :</small>
+                            <p id="previewIngredients" class="small mb-0">
+                                <?= isset($dish) && !empty($dish['ingredients']) ? 
+                                    htmlspecialchars(substr($dish['ingredients'], 0, 80)) . (strlen($dish['ingredients']) > 80 ? '...' : '') : 
+                                    'Tomate, Mozzarella, Basilic...' ?>
+                            </p>
+                        </div>
+                    </div>
+                    
+                   
+                    <div class="preview-badges mt-3">
+                        <div id="availabilityBadge" class="badge bg-success">
+                            <i class="bi bi-check-circle"></i> Disponible
+                        </div>
+                        <div id="specialBadge" class="badge bg-warning d-none">
+                            <i class="bi bi-star"></i> Spécial
+                        </div>
+                        <div id="vegetarianBadge" class="badge bg-success d-none">
+                            <i class="bi bi-flower1"></i> Végétarien
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        
+        <div class="card mt-3">
+            <div class="card-body">
+                <h6 class="card-title">
+                    <i class="bi bi-lightbulb"></i> Conseils pour un bon plat
+                </h6>
+                <ul class="small text-muted mb-0">
+                    <li>Utilisez un nom descriptif et attractif</li>
+                    <li>Ajoutez une photo de qualité (ratio 1:1)</li>
+                    <li>Décrivez les saveurs et textures</li>
+                    <li>Mentionnez les allergènes importants</li>
+                    <li>Un prix rond est plus attrayant (9.99€)</li>
+                    <li>Les plats spéciaux vendent mieux</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    
+    const nameInput = document.getElementById('name');
+    const priceInput = document.getElementById('price');
+    const descriptionInput = document.getElementById('description');
+    const ingredientsInput = document.getElementById('ingredients');
+    const preparationTimeInput = document.getElementById('preparation_time');
+    const categorySelect = document.getElementById('category_id');
+    const restaurantSelect = document.getElementById('restaurant_id');
+    const imageInput = document.getElementById('image');
+    const isAvailableCheckbox = document.getElementById('is_available');
+    const isSpecialCheckbox = document.getElementById('is_special');
+    const isVegetarianCheckbox = document.getElementById('is_vegetarian');
+    
+    
+    const previewName = document.getElementById('previewName');
+    const previewPrice = document.getElementById('previewPrice');
+    const previewDescription = document.getElementById('previewDescription');
+    const previewIngredients = document.getElementById('previewIngredients');
+    const previewTime = document.getElementById('previewTime');
+    const previewCategory = document.getElementById('previewCategory');
+    const previewRestaurant = document.getElementById('previewRestaurant');
+    const imagePreview = document.getElementById('imagePreview');
+    const availabilityBadge = document.getElementById('availabilityBadge');
+    const specialBadge = document.getElementById('specialBadge');
+    const vegetarianBadge = document.getElementById('vegetarianBadge');
+    
+    
+    function updatePreview() {
+        
+        previewName.textContent = nameInput.value || 'Nom du plat';
+        
+       
+        const price = parseFloat(priceInput.value) || 0;
+        previewPrice.textContent = price.toFixed(2).replace('.', ',') + ' €';
+        
+        
+        previewDescription.textContent = descriptionInput.value || 
+            'Description apparaîtra ici...';
+        if (previewDescription.textContent.length > 100) {
+            previewDescription.textContent = previewDescription.textContent.substring(0, 100) + '...';
+        }
+        
+        
+        previewIngredients.textContent = ingredientsInput.value || 
+            'Tomate, Mozzarella, Basilic...';
+        if (previewIngredients.textContent.length > 80) {
+            previewIngredients.textContent = previewIngredients.textContent.substring(0, 80) + '...';
+        }
+        
+       
+        previewTime.textContent = (preparationTimeInput.value || '20') + ' min';
+        
+        
+        const selectedCategory = categorySelect.options[categorySelect.selectedIndex];
+        previewCategory.textContent = selectedCategory.text || 'Catégorie';
+        
+        
+        const selectedRestaurant = restaurantSelect.options[restaurantSelect.selectedIndex];
+        previewRestaurant.textContent = selectedRestaurant.text || 'Restaurant';
+        
+        
+        if (isAvailableCheckbox.checked) {
+            availabilityBadge.style.display = 'inline-block';
+            availabilityBadge.className = 'badge bg-success me-1';
+            availabilityBadge.innerHTML = '<i class="bi bi-check-circle"></i> Disponible';
+        } else {
+            availabilityBadge.style.display = 'inline-block';
+            availabilityBadge.className = 'badge bg-danger me-1';
+            availabilityBadge.innerHTML = '<i class="bi bi-x-circle"></i> Indisponible';
+        }
+        
+        if (isSpecialCheckbox.checked) {
+            specialBadge.style.display = 'inline-block';
+        } else {
+            specialBadge.style.display = 'none';
+        }
+        
+        if (isVegetarianCheckbox.checked) {
+            vegetarianBadge.style.display = 'inline-block';
+        } else {
+            vegetarianBadge.style.display = 'none';
+        }
+    }
+    
+   
+    nameInput.addEventListener('input', updatePreview);
+    priceInput.addEventListener('input', updatePreview);
+    descriptionInput.addEventListener('input', updatePreview);
+    ingredientsInput.addEventListener('input', updatePreview);
+    preparationTimeInput.addEventListener('input', updatePreview);
+    categorySelect.addEventListener('change', updatePreview);
+    restaurantSelect.addEventListener('change', updatePreview);
+    isAvailableCheckbox.addEventListener('change', updatePreview);
+    isSpecialCheckbox.addEventListener('change', updatePreview);
+    isVegetarianCheckbox.addEventListener('change', updatePreview);
+    
+
+    imageInput.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                imagePreview.innerHTML = `
+                    <img src="${e.target.result}" 
+                         class="img-fluid rounded" 
+                         style="max-height: 200px; object-fit: cover;">
+                `;
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+    
+   
+    priceInput.addEventListener('blur', function() {
+        if (this.value < 0) {
+            this.value = 0;
+            updatePreview();
+        }
+    });
+    
+    
+    updatePreview();
+    
+   
+    document.getElementById('dishForm').addEventListener('submit', function(e) {
+        const price = parseFloat(priceInput.value);
+        if (price <= 0) {
+            e.preventDefault();
+            alert('Le prix doit être supérieur à 0.');
+            priceInput.focus();
+            return;
+        }
+        
+        if (!categorySelect.value) {
+            e.preventDefault();
+            alert('Veuillez sélectionner une catégorie.');
+            categorySelect.focus();
+            return;
+        }
+        
+        if (!nameInput.value.trim()) {
+            e.preventDefault();
+            alert('Veuillez saisir un nom pour le plat.');
+            nameInput.focus();
+            return;
+        }
+    });
+});
+</script>
+
+<style>
+.dish-preview-image {
+    height: 200px;
+    border: 2px dashed #dee2e6;
+    border-radius: 10px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f8f9fa;
+}
+
+.preview-placeholder {
+    text-align: center;
+    color: #6c757d;
+}
+
+.preview-placeholder i {
+    font-size: 4rem;
+}
+
+.dish-preview-info {
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 10px;
+}
+
+.preview-badges .badge {
+    font-size: 0.75rem;
+    padding: 0.35em 0.65em;
+}
+
+.sticky-top {
+    position: sticky;
+    z-index: 100;
+}
+</style>

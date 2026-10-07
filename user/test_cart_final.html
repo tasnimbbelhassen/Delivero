@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Cart FINAL</title>
+    <script>
+        async function testAddToCart(dishId = 1) {
+            console.log('Testing add_to_cart.php with dish_id:', dishId);
+            
+            try {
+                const response = await fetch('ajax/add_to_cart.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ 
+                        dish_id: dishId, 
+                        quantity: 1 
+                    }),
+                    credentials: 'include'
+                });
+                
+                const text = await response.text();
+                console.log('Response:', text);
+                
+                try {
+                    const json = JSON.parse(text);
+                    document.getElementById('result').innerHTML = 
+                        `<pre>${JSON.stringify(json, null, 2)}</pre>`;
+                } catch {
+                    document.getElementById('result').innerHTML = 
+                        `<div style="color:red">NOT JSON:<br>${text}</div>`;
+                }
+            } catch (error) {
+                document.getElementById('result').innerHTML = 
+                    `<div style="color:red">FETCH ERROR: ${error.message}</div>`;
+            }
+        }
+        
+        function testSwitchRestaurant(dishId = 2) {
+            fetch('ajax/switch_restaurant.php', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ dish_id: dishId, quantity: 1 }),
+                credentials: 'include'
+            })
+            .then(r => r.text())
+            .then(text => {
+                console.log('Switch response:', text);
+                document.getElementById('result2').innerHTML = 
+                    `<pre>${text}</pre>`;
+            })
+            .catch(error => {
+                document.getElementById('result2').innerHTML = 
+                    `<div style="color:red">Error: ${error.message}</div>`;
+            });
+        }
+        
+        function checkCart() {
+            fetch('ajax/get_cart_count.php', {credentials: 'include'})
+                .then(r => r.text())
+                .then(text => {
+                    document.getElementById('cartCount').innerText = text;
+                });
+        }
+        
+        // Check on load
+        window.onload = checkCart;
+    </script>
+</head>
+<body>
+    <h1>Test CART - FINAL FIX</h1>
+    
+    <p>Cart Count: <span id="cartCount">0</span></p>
+    
+    <h3>Test 1: Add to Cart</h3>
+    <button onclick="testAddToCart(1)">Add Dish ID 1</button>
+    <button onclick="testAddToCart(2)">Add Dish ID 2</button>
+    <div id="result" style="border:1px solid #ccc; padding:10px; margin:10px 0;"></div>
+    
+    <h3>Test 2: Switch Restaurant</h3>
+    <button onclick="testSwitchRestaurant(2)">Switch to Dish ID 2</button>
+    <div id="result2" style="border:1px solid #ccc; padding:10px; margin:10px 0;"></div>
+    
+    <h3>Direct Links:</h3>
+    <ul>
+        <li><a href="ajax/add_to_cart.php" target="_blank">add_to_cart.php (direct)</a></li>
+        <li><a href="debug_session.php" target="_blank">Check Session</a></li>
+    </ul>
+</body>
+</html>

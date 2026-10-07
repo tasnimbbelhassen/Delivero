@@ -1,0 +1,292 @@
+<?php
+if (!isset($category)) {
+    echo '<div class="alert alert-danger">Catégorie non trouvée.</div>';
+    exit();
+}
+?>
+
+<div class="row">
+    
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-body text-center">
+                
+                <div class="category-icon-large mb-4">
+                    <?php if (!empty($category['icon'])): ?>
+                        <i class="bi bi-<?= htmlspecialchars($category['icon']) ?>"></i>
+                    <?php else: ?>
+                        <i class="bi bi-tag"></i>
+                    <?php endif; ?>
+                </div>
+                
+                <h3 class="card-title mb-3"><?= htmlspecialchars($category['name']) ?></h3>
+                
+                <?php if (!empty($category['description'])): ?>
+                    <p class="card-text text-muted mb-4">
+                        <?= htmlspecialchars($category['description']) ?>
+                    </p>
+                <?php endif; ?>
+                
+                <div class="mb-4">
+                    <span class="badge bg-<?= $category['is_active'] ? 'success' : 'secondary' ?> fs-6">
+                        <?php if ($category['is_active']): ?>
+                            <i class="bi bi-check-circle"></i> Catégorie active
+                        <?php else: ?>
+                            <i class="bi bi-x-circle"></i> Catégorie inactive
+                        <?php endif; ?>
+                    </span>
+                </div>
+                
+                <div class="d-grid gap-2">
+                    <a href="edit_category.php?id=<?= $category['id'] ?>" class="btn btn-primary">
+                        <i class="bi bi-pencil"></i> Modifier la catégorie
+                    </a>
+                    <a href="categories.php" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left"></i> Retour à la liste
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        
+        <div class="card mt-3">
+            <div class="card-header">
+                <h6 class="card-title mb-0">Statistiques</h6>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-6 mb-3">
+                        <div class="stat-number"><?= $category['dish_count'] ?: 0 ?></div>
+                        <small class="text-muted">Plats total</small>
+                    </div>
+                    <div class="col-6 mb-3">
+                        <div class="stat-number"><?= $category['total_orders'] ?: 0 ?></div>
+                        <small class="text-muted">Commandes totales</small>
+                    </div>
+                    <div class="col-6">
+                        <div class="stat-number"><?= number_format($category['avg_rating'] ?? 0, 1) ?></div>
+                        <small class="text-muted">Note moyenne</small>
+                    </div>
+                    <div class="col-6">
+                        <div class="stat-number"><?= number_format($category['total_revenue'] ?? 0, 2, ',', ' ') ?> €</div>
+                        <small class="text-muted">Chiffre d'affaires</small>
+                    </div>
+                </div>
+                
+                <hr class="my-3">
+                
+                <div class="small text-muted">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span>Date de création :</span>
+                        <span><?= date('d/m/Y à H:i', strtotime($category['created_at'])) ?></span>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span>Dernière modification :</span>
+                        <span><?= date('d/m/Y à H:i', strtotime($category['created_at'])) ?></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-egg-fried"></i> Plats de cette catégorie
+                    <span class="badge bg-primary ms-2"><?= count($dishes) ?></span>
+                </h5>
+                <a href="add_dish.php?category_id=<?= $category['id'] ?>" class="btn btn-sm btn-primary">
+                    <i class="bi bi-plus-circle"></i> Ajouter un plat
+                </a>
+            </div>
+            
+            <div class="card-body">
+                <?php if (empty($dishes)): ?>
+                    <div class="text-center py-4">
+                        <i class="bi bi-egg-fried text-muted" style="font-size: 3rem;"></i>
+                        <p class="text-muted mt-2">Aucun plat dans cette catégorie</p>
+                        <a href="add_dish.php?category_id=<?= $category['id'] ?>" class="btn btn-primary">
+                            <i class="bi bi-plus-circle"></i> Ajouter le premier plat
+                        </a>
+                    </div>
+                <?php else: ?>
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Nom du plat</th>
+                                    <th>Restaurant</th>
+                                    <th>Prix</th>
+                                    <th>Statut</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($dishes as $dish): ?>
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <?php if (!empty($dish['image'])): ?>
+                                                <img src="../<?= htmlspecialchars($dish['image']) ?>" 
+                                                     class="rounded me-2" 
+                                                     style="width: 40px; height: 40px; object-fit: cover;">
+                                            <?php endif; ?>
+                                            <div>
+                                                <div class="fw-bold"><?= htmlspecialchars($dish['name']) ?></div>
+                                                <small class="text-muted">
+                                                    <?= htmlspecialchars(substr($dish['description'] ?? '', 0, 60)) ?>
+                                                    <?php if (strlen($dish['description'] ?? '') > 60): ?>...<?php endif; ?>
+                                                </small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <?php if (!empty($dish['restaurant_name'])): ?>
+                                            <i class="bi bi-shop text-muted me-1"></i>
+                                            <?= htmlspecialchars($dish['restaurant_name']) ?>
+                                        <?php else: ?>
+                                            <span class="text-muted">-</span>
+                                        <?php endif; ?>
+                                    </td>
+                                    <td>
+                                        <span class="fw-bold text-success">
+                                            <?= number_format($dish['price'], 2, ',', ' ') ?> €
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-<?= $dish['is_available'] ? 'success' : 'secondary' ?>">
+                                            <?= $dish['is_available'] ? 'Disponible' : 'Indisponible' ?>
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm">
+                                            <a href="dish_details.php?id=<?= $dish['id'] ?>" 
+                                               class="btn btn-outline-info" 
+                                               title="Voir détails">
+                                                <i class="bi bi-eye"></i>
+                                            </a>
+                                            <a href="edit_dish.php?id=<?= $dish['id'] ?>" 
+                                               class="btn btn-outline-primary" 
+                                               title="Modifier">
+                                                <i class="bi bi-pencil"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <?php if ($category['dish_count'] > 10): ?>
+                        <div class="text-center mt-3">
+                            <a href="dishes.php?category=<?= $category['id'] ?>" class="btn btn-outline-primary">
+                                <i class="bi bi-list-ul"></i> Voir tous les <?= $category['dish_count'] ?> plats
+                            </a>
+                        </div>
+                    <?php endif; ?>
+                <?php endif; ?>
+            </div>
+        </div>
+        
+        
+        <div class="card mt-3">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-graph-up"></i> Analyse des performances
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>Top 3 plats les plus commandés</h6>
+                        <?php
+                        $topDishes = $pdo->prepare("
+                            SELECT name, order_count, price
+                            FROM dishes
+                            WHERE category_id = ?
+                            ORDER BY order_count DESC
+                            LIMIT 3
+                        ");
+                        $topDishes->execute([$category['id']]);
+                        $topDishesData = $topDishes->fetchAll();
+                        ?>
+                        
+                        <?php if (!empty($topDishesData)): ?>
+                            <div class="list-group list-group-flush">
+                                <?php foreach ($topDishesData as $topDish): ?>
+                                <div class="list-group-item d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <div class="fw-bold"><?= htmlspecialchars($topDish['name']) ?></div>
+                                        <small class="text-muted"><?= number_format($topDish['price'], 2, ',', ' ') ?> €</small>
+                                    </div>
+                                    <span class="badge bg-success rounded-pill"><?= $topDish['order_count'] ?> commandes</span>
+                                </div>
+                                <?php endforeach; ?>
+                            </div>
+                        <?php else: ?>
+                            <p class="text-muted">Aucune donnée disponible</p>
+                        <?php endif; ?>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <h6>Distribution des prix</h6>
+                        <?php
+                        $priceStats = $pdo->prepare("
+                            SELECT 
+                                MIN(price) as min_price,
+                                MAX(price) as max_price,
+                                AVG(price) as avg_price
+                            FROM dishes
+                            WHERE category_id = ?
+                        ");
+                        $priceStats->execute([$category['id']]);
+                        $priceData = $priceStats->fetch();
+                        ?>
+                        
+                        <div class="row text-center">
+                            <div class="col-4">
+                                <div class="fs-4 fw-bold text-primary"><?= number_format($priceData['min_price'] ?? 0, 2, ',', ' ') ?> €</div>
+                                <small class="text-muted">Prix min</small>
+                            </div>
+                            <div class="col-4">
+                                <div class="fs-4 fw-bold text-success"><?= number_format($priceData['avg_price'] ?? 0, 2, ',', ' ') ?> €</div>
+                                <small class="text-muted">Prix moyen</small>
+                            </div>
+                            <div class="col-4">
+                                <div class="fs-4 fw-bold text-danger"><?= number_format($priceData['max_price'] ?? 0, 2, ',', ' ') ?> €</div>
+                                <small class="text-muted">Prix max</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.category-icon-large {
+    font-size: 4rem;
+    color: var(--primary-green);
+    margin-bottom: 1.5rem;
+}
+
+.stat-number {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--primary-green);
+}
+
+.table th {
+    background-color: rgba(57, 193, 193, 0.08);
+    color: var(--text-dark);
+    font-weight: 600;
+}
+
+.table tbody tr:hover {
+    background-color: rgba(57, 193, 193, 0.05);
+}
+</style>

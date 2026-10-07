@@ -1,0 +1,329 @@
+
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h2 class="h4 mb-1">
+                    <i class="bi bi-shop"></i> Gestion des restaurants
+                </h2>
+                <p class="text-muted mb-0">
+                    <?= count($restaurants) ?> restaurant(s) enregistré(s)
+                </p>
+            </div>
+            <a href="add_restaurant.php" class="btn btn-primary">
+                <i class="bi bi-plus-circle"></i> Nouveau restaurant
+            </a>
+        </div>
+    </div>
+</div>
+
+
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="GET" class="row g-3">
+            <div class="col-md-4">
+                <label class="form-label">Recherche</label>
+                <div class="input-group">
+                    <input type="text" class="form-control" name="search" 
+                           value="<?= htmlspecialchars($search_query ?? '') ?>" 
+                           placeholder="Nom, adresse, téléphone...">
+                    <button class="btn btn-outline-secondary" type="submit">
+                        <i class="bi bi-search"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="col-md-3">
+                <label class="form-label">Statut</label>
+                <select class="form-select" name="status">
+                    <option value="">Tous</option>
+                    <option value="active" <?= ($status_filter ?? '') == 'active' ? 'selected' : '' ?>>Actifs</option>
+                    <option value="inactive" <?= ($status_filter ?? '') == 'inactive' ? 'selected' : '' ?>>Inactifs</option>
+                </select>
+            </div>
+            
+            <div class="col-md-3">
+                <label class="form-label">Tri par</label>
+                <select class="form-select" name="sort">
+                    <option value="newest" <?= ($sort_filter ?? '') == 'newest' ? 'selected' : '' ?>>Plus récents</option>
+                    <option value="oldest" <?= ($sort_filter ?? '') == 'oldest' ? 'selected' : '' ?>>Plus anciens</option>
+                    <option value="rating" <?= ($sort_filter ?? '') == 'rating' ? 'selected' : '' ?>>Meilleure note</option>
+                    <option value="name" <?= ($sort_filter ?? '') == 'name' ? 'selected' : '' ?>>Nom (A-Z)</option>
+                </select>
+            </div>
+            
+            <div class="col-md-2 d-flex align-items-end">
+                <div class="btn-group w-100">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-funnel"></i> Appliquer
+                    </button>
+                    <a href="restaurants.php" class="btn btn-outline-secondary">
+                        <i class="bi bi-x-circle"></i>
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+<?php if (empty($restaurants)): ?>
+    <div class="card">
+        <div class="card-body text-center py-5">
+            <i class="bi bi-shop display-1 text-muted mb-3"></i>
+            <h3>Aucun restaurant trouvé</h3>
+            <p class="text-muted mb-4">
+                <?php if (isset($search_query) && $search_query): ?>
+                    Aucun restaurant ne correspond à votre recherche.
+                <?php else: ?>
+                    Commencez par ajouter votre premier restaurant.
+                <?php endif; ?>
+            </p>
+            <a href="add_restaurant.php" class="btn btn-primary">
+                <i class="bi bi-plus-circle"></i> Ajouter un restaurant
+            </a>
+        </div>
+    </div>
+<?php else: ?>
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xl-4 g-4">
+        <?php foreach ($restaurants as $restaurant): ?>
+            <div class="col">
+                <div class="card restaurant-card h-100">
+                    
+                    <div class="restaurant-card-header">
+                        <?php if (!empty($restaurant['image'])): ?>
+                            <img src="../<?= htmlspecialchars($restaurant['image']) ?>" 
+                                 class="restaurant-card-img" 
+                                 alt="<?= htmlspecialchars($restaurant['name']) ?>">
+                        <?php else: ?>
+                            <div class="restaurant-card-img-placeholder">
+                                <i class="bi bi-shop"></i>
+                            </div>
+                        <?php endif; ?>
+                        
+                        
+                        <div class="restaurant-card-badges">
+                            <?php if ($restaurant['is_active']): ?>
+                                <span class="badge bg-success">Actif</span>
+                            <?php else: ?>
+                                <span class="badge bg-danger">Inactif</span>
+                            <?php endif; ?>
+                            <span class="badge bg-warning">
+                                <i class="bi bi-star-fill"></i> <?= number_format($restaurant['rating'], 1) ?>
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div class="card-body">
+                        <h5 class="card-title mb-2"><?= htmlspecialchars($restaurant['name']) ?></h5>
+                        
+                        <div class="restaurant-info mb-3">
+                            <div class="info-item mb-2">
+                                <i class="bi bi-geo-alt"></i>
+                                <span class="ms-2"><?= htmlspecialchars($restaurant['address']) ?></span>
+                            </div>
+                            
+                            <?php if ($restaurant['phone']): ?>
+                                <div class="info-item mb-2">
+                                    <i class="bi bi-telephone"></i>
+                                    <span class="ms-2"><?= htmlspecialchars($restaurant['phone']) ?></span>
+                                </div>
+                            <?php endif; ?>
+                            
+                            <?php if ($restaurant['email']): ?>
+                                <div class="info-item mb-2">
+                                    <i class="bi bi-envelope"></i>
+                                    <span class="ms-2"><?= htmlspecialchars($restaurant['email']) ?></span>
+                                </div>
+                            <?php endif; ?>
+                            
+                            <div class="info-item">
+                                <i class="bi bi-clock"></i>
+                                <span class="ms-2">Livraison: <?= htmlspecialchars($restaurant['delivery_time']) ?></span>
+                            </div>
+                        </div>
+                        
+                        
+                        <div class="restaurant-stats">
+                            <div class="row text-center">
+                                <div class="col-4">
+                                    <div class="stat-number">
+                                        <?php
+                                        $dishCount = $pdo->prepare("SELECT COUNT(*) FROM dishes WHERE restaurant_id = ?");
+                                        $dishCount->execute([$restaurant['id']]);
+                                        echo $dishCount->fetchColumn();
+                                        ?>
+                                    </div>
+                                    <small class="text-muted">Plats</small>
+                                </div>
+                                <div class="col-4">
+                                    <div class="stat-number">
+                                        <?php
+                                        $orderCount = $pdo->prepare("
+                                            SELECT COUNT(DISTINCT o.id) 
+                                            FROM orders o
+                                            JOIN order_items oi ON o.id = oi.order_id
+                                            JOIN dishes d ON oi.dish_id = d.id
+                                            WHERE d.restaurant_id = ?
+                                        ");
+                                        $orderCount->execute([$restaurant['id']]);
+                                        echo $orderCount->fetchColumn();
+                                        ?>
+                                    </div>
+                                    <small class="text-muted">Commandes</small>
+                                </div>
+                                <div class="col-4">
+                                    <div class="stat-number">
+                                        <?= date('d/m/Y', strtotime($restaurant['created_at'])) ?>
+                                    </div>
+                                    <small class="text-muted">Date</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card-footer bg-transparent">
+                        <div class="btn-group w-100">
+                            <a href="restaurant_details.php?id=<?= $restaurant['id'] ?>" 
+                               class="btn btn-sm btn-outline-info">
+                                <i class="bi bi-eye"></i> Voir
+                            </a>
+                            <a href="edit_restaurant.php?id=<?= $restaurant['id'] ?>" 
+                               class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-pencil"></i> Modifier
+                            </a>
+                            <a href="delete_restaurant.php?id=<?= $restaurant['id'] ?>" 
+                               class="btn btn-sm btn-outline-danger"
+                               onclick="return confirm('Supprimer ce restaurant ?')">
+                                <i class="bi bi-trash"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        <?php endforeach; ?>
+    </div>
+    
+    
+    <?php if (count($restaurants) > 12): ?>
+        <nav aria-label="Navigation des restaurants" class="mt-4">
+            <ul class="pagination justify-content-center">
+                <li class="page-item disabled">
+                    <a class="page-link" href="#" tabindex="-1">Précédent</a>
+                </li>
+                <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                <li class="page-item"><a class="page-link" href="#">2</a></li>
+                <li class="page-item"><a class="page-link" href="#">3</a></li>
+                <li class="page-item">
+                    <a class="page-link" href="#">Suivant</a>
+                </li>
+            </ul>
+        </nav>
+    <?php endif; ?>
+<?php endif; ?>
+
+
+<div class="row mt-5">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-bar-chart"></i> Statistiques des restaurants
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-md-3">
+                        <div class="stat-number"><?= count($restaurants) ?></div>
+                        <small class="text-muted">Restaurants total</small>
+                    </div>
+                    <div class="col-md-3">
+                        <?php
+                        $activeCount = count(array_filter($restaurants, fn($r) => $r['is_active']));
+                        ?>
+                        <div class="stat-number"><?= $activeCount ?></div>
+                        <small class="text-muted">Restaurants actifs</small>
+                    </div>
+                    <div class="col-md-3">
+                        <?php
+                        $avgRating = count($restaurants) > 0 ? 
+                            array_sum(array_column($restaurants, 'rating')) / count($restaurants) : 0;
+                        ?>
+                        <div class="stat-number"><?= number_format($avgRating, 1) ?>/5</div>
+                        <small class="text-muted">Note moyenne</small>
+                    </div>
+                    <div class="col-md-3">
+                        <?php
+                        $totalDishes = $pdo->query("SELECT COUNT(*) FROM dishes")->fetchColumn();
+                        ?>
+                        <div class="stat-number"><?= $totalDishes ?></div>
+                        <small class="text-muted">Plats total</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.restaurant-card {
+    border-radius: 12px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.restaurant-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.restaurant-card-header {
+    position: relative;
+    height: 150px;
+    overflow: hidden;
+}
+
+.restaurant-card-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.restaurant-card-img-placeholder {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #39C1C1, #216767);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 3rem;
+}
+
+.restaurant-card-badges {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.restaurant-info .info-item {
+    display: flex;
+    align-items: flex-start;
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.restaurant-info .info-item i {
+    color: var(--primary-green);
+    margin-top: 2px;
+}
+
+.restaurant-stats .stat-number {
+    font-size: 1.25rem;
+    font-weight: bold;
+    color: var(--primary-green);
+}
+</style>

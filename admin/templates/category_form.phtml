@@ -1,0 +1,276 @@
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <?= isset($category) ? 'Modifier la catégorie' : 'Ajouter une nouvelle catégorie' ?>
+                </h5>
+            </div>
+            <div class="card-body">
+                <?php if (!empty($errors)): ?>
+                    <div class="alert alert-danger">
+                        <ul class="mb-0">
+                            <?php foreach ($errors as $error): ?>
+                                <li><?= htmlspecialchars($error) ?></li>
+                            <?php endforeach; ?>
+                        </ul>
+                    </div>
+                <?php endif; ?>
+                
+                <form method="POST">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="name" class="form-label">Nom de la catégorie *</label>
+                            <input type="text" class="form-control" id="name" name="name" 
+                                   value="<?= htmlspecialchars(isset($_POST['name']) ? $_POST['name'] : (isset($category) ? $category['name'] : (isset($prefilled_name) ? $prefilled_name : ''))) ?>" 
+                                   required>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="icon" class="form-label">Icône Bootstrap</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-tag"></i></span>
+                                <input type="text" class="form-control" id="icon" name="icon" 
+                                       placeholder="ex: egg-fried, tag, star"
+                                       value="<?= htmlspecialchars(isset($_POST['icon']) ? $_POST['icon'] : (isset($category) ? $category['icon'] : (isset($prefilled_icon) ? $prefilled_icon : ''))) ?>">
+                            </div>
+                            <small class="text-muted">
+                                <a href="https://icons.getbootstrap.com/" target="_blank" class="text-decoration-none">
+                                    <i class="bi bi-box-arrow-up-right"></i> Voir toutes les icônes disponibles
+                                </a>
+                            </small>
+                        </div>
+                        
+                        <div class="col-12">
+                            <label for="description" class="form-label">Description</label>
+                            <textarea class="form-control" id="description" name="description" 
+                                      rows="3"><?= htmlspecialchars(isset($_POST['description']) ? $_POST['description'] : (isset($category) ? $category['description'] : '')) ?></textarea>
+                        </div>
+                        
+                        <div class="col-12 mt-3">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="is_active" name="is_active" 
+                                       value="1" <?= (isset($_POST['is_active']) && $_POST['is_active']) || (isset($category) && $category['is_active']) || (!isset($_POST['is_active']) && !isset($category)) ? 'checked' : '' ?>>
+                                <label class="form-check-label" for="is_active">
+                                    Catégorie active (apparaîtra dans les listes)
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check-circle"></i> 
+                            <?= isset($category) ? 'Mettre à jour' : 'Ajouter la catégorie' ?>
+                        </button>
+                        <a href="<?= isset($category) ? 'category_details.php?id=' . $category['id'] : 'categories.php' ?>" 
+                           class="btn btn-secondary">
+                            Annuler
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+       
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Aperçu de la catégorie</h5>
+            </div>
+            <div class="card-body text-center">
+                <div id="iconPreview" class="mb-4">
+                    <div class="icon-preview-circle mx-auto">
+                        <i id="previewIcon" class="bi bi-tag"></i>
+                    </div>
+                </div>
+                
+                <h4 id="previewName" class="mb-2">Nom de la catégorie</h4>
+                <p id="previewDescription" class="text-muted small mb-3">
+                    Description apparaîtra ici...
+                </p>
+                
+                <div class="d-flex justify-content-center mb-3">
+                    <span id="previewStatus" class="badge bg-success">
+                        <i class="bi bi-check-circle"></i> Active
+                    </span>
+                </div>
+                
+                <div class="text-start">
+                    <h6>Icônes populaires :</h6>
+                    <div class="row g-2">
+                        <?php
+                        $popularIcons = [
+                            'egg-fried', 'cup-straw', 'droplet', 'egg', 'flower1',
+                            'cake', 'cup', 'tag', 'star', 'heart',
+                            'flag', 'bookmark', 'book', 'shop', 'cart',
+                            'truck', 'clock', 'geo-alt', 'phone', 'envelope'
+                        ];
+                        
+                        foreach ($popularIcons as $icon):
+                        ?>
+                        <div class="col-3">
+                            <button type="button" 
+                                    class="btn btn-sm btn-outline-secondary w-100 icon-select"
+                                    data-icon="<?= $icon ?>"
+                                    title="<?= $icon ?>">
+                                <i class="bi bi-<?= $icon ?>"></i>
+                            </button>
+                        </div>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+                
+                <hr class="my-3">
+                
+                <div class="info-box">
+                    <h6>Conseils :</h6>
+                    <ul class="small text-muted">
+                        <li>Utilisez des noms courts et descriptifs</li>
+                        <li>Choisissez une icône représentative</li>
+                        <li>Les catégories inactives n'apparaîtront pas aux clients</li>
+                        <li>Une bonne organisation facilite la navigation</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        
+        <?php if (isset($category) && isset($category['id'])): ?>
+        <div class="card mt-3">
+            <div class="card-body">
+                <h6 class="card-title">Statistiques actuelles</h6>
+                <?php
+                
+                $stats_stmt = $pdo->prepare("
+                    SELECT 
+                        COUNT(*) as dish_count,
+                        SUM(order_count) as total_orders,
+                        AVG(rating) as avg_rating
+                    FROM dishes 
+                    WHERE category_id = ?
+                ");
+                $stats_stmt->execute([$category['id']]);
+                $stats = $stats_stmt->fetch();
+                ?>
+                <div class="row text-center">
+                    <div class="col-6 mb-2">
+                        <div class="stat-number"><?= $stats['dish_count'] ?: 0 ?></div>
+                        <small class="text-muted">Plats</small>
+                    </div>
+                    <div class="col-6 mb-2">
+                        <div class="stat-number"><?= $stats['total_orders'] ?: 0 ?></div>
+                        <small class="text-muted">Commandes</small>
+                    </div>
+                    <div class="col-12">
+                        <div class="stat-number"><?= number_format($stats['avg_rating'] ?? 0, 1) ?></div>
+                        <small class="text-muted">Note moyenne</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <?php endif; ?>
+    </div>
+</div>
+
+<style>
+.icon-preview-circle {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, rgba(57, 193, 193, 0.1), rgba(33, 103, 103, 0.1));
+    border: 3px solid var(--primary-green);
+    color: var(--primary-green);
+    font-size: 2.5rem;
+    transition: all 0.3s ease;
+}
+
+.stat-number {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--primary-green);
+}
+
+.icon-select:hover {
+    background-color: var(--primary-green);
+    color: white;
+    border-color: var(--primary-green);
+}
+
+.icon-select.active {
+    background-color: var(--primary-green);
+    color: white;
+    border-color: var(--primary-green);
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const nameInput = document.getElementById('name');
+    const iconInput = document.getElementById('icon');
+    const descriptionInput = document.getElementById('description');
+    const statusCheckbox = document.getElementById('is_active');
+    
+    const previewName = document.getElementById('previewName');
+    const previewIcon = document.getElementById('previewIcon');
+    const previewDescription = document.getElementById('previewDescription');
+    const previewStatus = document.getElementById('previewStatus');
+    
+    function updatePreview() {
+        previewName.textContent = nameInput.value || 'Nom de la catégorie';
+        
+        const iconValue = iconInput.value.trim();
+        if (iconValue) {
+            previewIcon.className = 'bi bi-' + iconValue;
+        } else {
+            previewIcon.className = 'bi bi-tag';
+        }
+        
+        previewDescription.textContent = descriptionInput.value || 'Description apparaîtra ici...';
+        
+        if (statusCheckbox.checked) {
+            previewStatus.className = 'badge bg-success';
+            previewStatus.innerHTML = '<i class="bi bi-check-circle"></i> Active';
+        } else {
+            previewStatus.className = 'badge bg-secondary';
+            previewStatus.innerHTML = '<i class="bi bi-x-circle"></i> Inactive';
+        }
+    }
+    
+    nameInput.addEventListener('input', updatePreview);
+    iconInput.addEventListener('input', updatePreview);
+    descriptionInput.addEventListener('input', updatePreview);
+    statusCheckbox.addEventListener('change', updatePreview);
+    
+
+    const iconButtons = document.querySelectorAll('.icon-select');
+    iconButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const icon = this.dataset.icon;
+            iconInput.value = icon;
+            updatePreview();
+            
+         
+            iconButtons.forEach(btn => btn.classList.remove('active'));
+            this.classList.add('active');
+        });
+    });
+    
+    
+    updatePreview();
+    
+   
+    if (iconInput.value) {
+        const selectedIcon = iconInput.value;
+        iconButtons.forEach(button => {
+            if (button.dataset.icon === selectedIcon) {
+                button.classList.add('active');
+            }
+        });
+    }
+});
+</script>

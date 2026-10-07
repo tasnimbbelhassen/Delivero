@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connexion - DELIVERO</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    
+    <style>
+    :root {
+    --primary-green: #39C1C1;
+    --dark-green: #216767;
+    --bg-light: #FBFCF8;
+    --card-bg: #FFFFFF;
+    --text-dark: #216767;
+    --text-gray: #888888;
+    --border-color: #E0E0E0;
+    --shadow-light: 0 4px 20px rgba(0, 0, 0, 0.05);
+    --shadow-medium: 0 8px 30px rgba(0, 0, 0, 0.08);
+    --success-color: #28a745;
+    --warning-color: #ffc107;
+    --danger-color: #dc3545;
+    --info-color: #17a2b8;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    background: var(--bg-light);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    position: relative;
+    padding: 20px;
+    overflow-x: hidden;
+}
+
+
+body::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: 
+        radial-gradient(circle at 20% 50%, rgba(57, 193, 193, 0.15) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(33, 103, 103, 0.15) 0%, transparent 50%);
+    z-index: 0;
+    animation: backgroundPulse 8s ease-in-out infinite;
+}
+
+@keyframes backgroundPulse {
+    0%, 100% { opacity: 0.7; }
+    50% { opacity: 1; }
+}
+
+.login-container {
+    background: var(--card-bg);
+    border-radius: 24px;
+    box-shadow: var(--shadow-medium);
+    width: 100%;
+    max-width: 440px;
+    overflow: hidden;
+    position: relative;
+    z-index: 1;
+    border: 1px solid var(--border-color);
+    animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(40px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.login-header {
+    text-align: center;
+    padding: 45px 30px;
+    background: linear-gradient(135deg, var(--primary-green) 0%, var(--dark-green) 100%);
+    color: white;
+    position: relative;
+    overflow: hidden;
+}
+
+.login-header::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.15) 0%, transparent 70%);
+    animation: headerPulse 4s ease-in-out infinite;
+}
+
+@keyframes headerPulse {
+    0%, 100% { 
+        transform: scale(1) translate(0, 0); 
+        opacity: 0.5; 
+    }
+    50% { 
+        transform: scale(1.1) translate(-10px, -10px); 
+        opacity: 0.8; 
+    }
+}
+
+.login-header i {
+    font-size: 4rem;
+    margin-bottom: 15px;
+    position: relative;
+    z-index: 1;
+    filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.3));
+    animation: iconFloat 3s ease-in-out infinite;
+    display: inline-block;
+}
+
+@keyframes iconFloat {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+.login-header h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin: 0;
+    position: relative;
+    z-index: 1;
+    letter-spacing: 1px;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+.login-body {
+    padding: 40px 35px;
+}
+
+.form-label {
+    font-weight: 600;
+    color: var(--text-dark);
+    margin-bottom: 10px;
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+}
+
+.form-label i {
+    font-size: 1.1rem;
+    color: var(--primary-green);
+    transition: all 0.3s ease;
+}
+
+.form-control {
+    padding: 15px 18px;
+    border-radius: 12px;
+    border: 2px solid var(--border-color);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    background: var(--bg-light);
+    color: var(--text-dark);
+    font-size: 0.95rem;
+    width: 100%;
+}
+
+.form-control:focus {
+    border-color: var(--primary-green);
+    box-shadow: 0 0 0 5px rgba(57, 193, 193, 0.12);
+    background: var(--card-bg);
+    outline: none;
+    transform: translateY(-2px);
+}
+
+.form-control::placeholder {
+    color: var(--text-gray);
+    opacity: 0.7;
+}
+
+.input-group {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.input-group .form-control {
+    flex: 1;
+    border-radius: 12px;
+}
+
+.input-group .btn-outline-secondary {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    border: none;
+    background: transparent;
+    color: var(--text-gray);
+    padding: 8px 12px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    z-index: 10;
+}
+
+.input-group .btn-outline-secondary:hover {
+    background: rgba(57, 193, 193, 0.1);
+    color: var(--primary-green);
+}
+
+.input-group .btn-outline-secondary:focus {
+    box-shadow: none;
+    outline: none;
+}
+
+.input-group .btn-outline-secondary i {
+    font-size: 1.2rem;
+}
+
+.btn-login {
+    background: linear-gradient(135deg, var(--primary-green) 0%, var(--dark-green) 100%);
+    border: none;
+    color: white;
+    padding: 16px;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 1.05rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 20px rgba(57, 193, 193, 0.35);
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+}
+
+.btn-login::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.25), transparent);
+    transform: translateX(-100%);
+    transition: transform 0.6s;
+}
+
+.btn-login:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(57, 193, 193, 0.45);
+    color: white;
+}
+
+.btn-login:hover::before {
+    transform: translateX(100%);
+}
+
+.btn-login:active {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 15px rgba(57, 193, 193, 0.4);
+}
+
+.btn-login:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.btn-login:disabled:hover {
+    transform: none;
+    box-shadow: 0 4px 20px rgba(57, 193, 193, 0.35);
+}
+
+.btn-login i {
+    margin-right: 8px;
+}
+
+.alert {
+    border-radius: 12px;
+    border: none;
+    padding: 14px 18px;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    animation: alertSlide 0.4s ease-out;
+    margin-bottom: 20px;
+}
+
+@keyframes alertSlide {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.alert-danger {
+    background: linear-gradient(135deg, #ffe5e5 0%, #ffd4d4 100%);
+    color: var(--danger-color);
+    border-left: 4px solid var(--danger-color);
+}
+
+.alert-success {
+    background: linear-gradient(135deg, #d4f4dd 0%, #c3f0d0 100%);
+    color: var(--success-color);
+    border-left: 4px solid var(--success-color);
+}
+
+.alert .btn-close {
+    margin-left: auto;
+}
+
+
+.text-center a,
+.forgot-password,
+.forgot-password-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--primary-green);
+    text-decoration: none;
+    border-radius: 10px;
+    position: relative;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.text-center a::before,
+.forgot-password::before,
+.forgot-password-link::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--primary-green);
+    opacity: 0;
+    border-radius: 10px;
+    transition: opacity 0.3s ease;
+}
+
+.text-center a:hover,
+.forgot-password:hover,
+.forgot-password-link:hover {
+    color: var(--dark-green);
+    transform: translateX(4px);
+}
+
+.text-center a:hover::before,
+.forgot-password:hover::before,
+.forgot-password-link:hover::before {
+    opacity: 0.08;
+}
+
+.text-center a:active,
+.forgot-password:active,
+.forgot-password-link:active {
+    transform: scale(0.97);
+}
+
+.text-center a small,
+.forgot-password small,
+.forgot-password-link small {
+    position: relative;
+    z-index: 1;
+}
+
+
+.forgot-password-link.with-icon::after {
+    content: '\F138';
+    font-family: 'bootstrap-icons';
+    font-size: 0.85rem;
+    transition: transform 0.3s ease;
+    position: relative;
+    z-index: 1;
+}
+
+.forgot-password-link.with-icon:hover::after {
+    transform: translateX(3px);
+}
+
+.login-footer {
+    text-align: center;
+    padding: 25px;
+    background: linear-gradient(180deg, var(--bg-light) 0%, #f0f2ed 100%);
+    border-top: 1px solid var(--border-color);
+    color: var(--text-gray);
+    font-size: 0.9rem;
+}
+
+.login-footer strong {
+    color: var(--text-dark);
+    display: block;
+    margin-bottom: 10px;
+    font-size: 0.95rem;
+}
+
+.login-footer > div:first-child {
+    margin-bottom: 8px;
+}
+
+.login-footer .text-muted {
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid var(--border-color);
+}
+
+
+.mb-4 {
+    margin-bottom: 1.5rem;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.mb-4:focus-within .form-label {
+    color: var(--primary-green);
+}
+
+.mb-4:focus-within .form-label i {
+    transform: scale(1.1);
+}
+
+
+.d-grid {
+    display: grid;
+}
+
+.gap-2 {
+    gap: 0.5rem;
+}
+
+.mb-2 {
+    margin-bottom: 0.5rem;
+}
+
+.mb-3 {
+    margin-bottom: 1rem;
+}
+
+.mt-2 {
+    margin-top: 0.5rem;
+}
+
+.mt-3 {
+    margin-top: 1rem;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.text-muted {
+    color: var(--text-gray);
+}
+
+.text-decoration-none {
+    text-decoration: none;
+}
+
+
+@media (max-width: 480px) {
+    body {
+        padding: 15px;
+    }
+
+    .login-container {
+        max-width: 100%;
+        border-radius: 20px;
+    }
+
+    .login-header {
+        padding: 35px 25px;
+    }
+
+    .login-header i {
+        font-size: 3.5rem;
+    }
+
+    .login-header h1 {
+        font-size: 1.7rem;
+    }
+
+    .login-body {
+        padding: 30px 25px;
+    }
+
+    .form-control {
+        padding: 13px 16px;
+        font-size: 0.9rem;
+    }
+
+    .btn-login {
+        padding: 14px;
+        font-size: 1rem;
+    }
+
+    .login-footer {
+        padding: 20px;
+    }
+}
+
+
+a, button, input, .form-control, .btn {
+    transition: all 0.3s ease;
+}
+
+
+*:focus-visible {
+    outline: 2px solid var(--primary-green);
+    outline-offset: 2px;
+}
+
+button:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 4px rgba(57, 193, 193, 0.3);
+}
+
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-header">
+            <i class="bi bi-basket"></i>
+            <h1>Delivero</h1>
+        </div>
+        
+        <div class="login-body">
+            <?php if (!empty($error)): ?>
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <?= htmlspecialchars($error) ?>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            <?php endif; ?>
+            
+            <form method="POST" action="">
+                <input type="hidden" name="login" value="1">
+                
+                <div class="mb-4">
+                    <label for="username" class="form-label">
+                        <i class="bi bi-person"></i> Nom d'utilisateur ou Email
+                    </label>
+                    <input type="text" 
+                           class="form-control" 
+                           id="username" 
+                           name="username" 
+                           placeholder="admin ou admin@delivero.com"
+                           value="<?= isset($_POST['username']) ? htmlspecialchars($_POST['username']) : '' ?>" 
+                           required>
+                </div>
+                
+                <div class="mb-4">
+                    <label for="password" class="form-label">
+                        <i class="bi bi-lock"></i> Mot de passe
+                    </label>
+                    <div class="input-group">
+                        <input type="password" 
+                               class="form-control" 
+                               id="password" 
+                               name="password" 
+                               placeholder="••••••••"
+                               required>
+                        <button class="btn btn-outline-secondary" type="button" id="togglePassword">
+                            <i class="bi bi-eye"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-login">
+                        <i class="bi bi-box-arrow-in-right"></i> Se connecter
+                    </button>
+                </div>
+                
+                <div class="text-center mt-3">
+                    <a href="#" class="forgot-password">
+                        <small>Mot de passe oublié ?</small>
+                    </a>
+                </div>
+
+                    
+                    
+
+                <div class="text-center mt-3">
+                    
+                    <a href="register.php" class="forgot-password-link with-icon">
+                        <i class="bi bi-person-plus me-1"></i> Créer un nouveau compte client
+                    </a>
+                </div>
+            </form>
+        </div>
+        <!--
+        <div class="login-footer">
+            <div class="mb-2">
+                <strong>Identifiants de test :</strong>
+            </div>
+            <div>admin / admin123</div>
+            <div class="mt-2 text-muted">
+                <small>Version 1.0 • © <?= date('Y') ?> Delivero</small>
+            </div>
+        </div>
+            -->
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const togglePassword = document.getElementById('togglePassword');
+            const passwordInput = document.getElementById('password');
+            
+            if (togglePassword && passwordInput) {
+                togglePassword.addEventListener('click', function() {
+                    const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                    passwordInput.setAttribute('type', type);
+                    const icon = this.querySelector('i');
+                    if (type === 'password') {
+                        icon.className = 'bi bi-eye';
+                    } else {
+                        icon.className = 'bi bi-eye-slash';
+                    }
+                });
+            }
+            
+            const usernameInput = document.getElementById('username');
+            if (usernameInput) {
+                usernameInput.focus();
+            }
+            
+            if (!usernameInput.value) {
+                usernameInput.value = 'admin';
+            }
+        });
+    </script>
+</body>
+</html>

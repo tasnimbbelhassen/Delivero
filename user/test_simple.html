@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Simple</title>
+    <script>
+        async function testEndpoint(endpoint, data = {}) {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML += `<div><strong>Testing ${endpoint}:</strong></div>`;
+            
+            try {
+                const response = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                // Check if response is JSON
+                const contentType = response.headers.get('content-type');
+                if (!contentType || !contentType.includes('application/json')) {
+                    const text = await response.text();
+                    resultDiv.innerHTML += `<div style="color: red">Not JSON! First 500 chars:<br>${text.substring(0, 500)}</div>`;
+                } else {
+                    const json = await response.json();
+                    resultDiv.innerHTML += `<div style="color: green">${JSON.stringify(json, null, 2)}</div>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML += `<div style="color: red">Error: ${error.message}</div>`;
+            }
+            resultDiv.innerHTML += '<hr>';
+        }
+        
+        function runAllTests() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = '';
+            
+            // Test 1: Add to cart
+            testEndpoint('ajax/add_to_cart.php', { dish_id: 1, quantity: 1 });
+            
+            // Test 2: Get cart count
+            setTimeout(() => {
+                fetch('ajax/get_cart_count.php')
+                    .then(r => r.text())
+                    .then(text => {
+                        resultDiv.innerHTML += `<div><strong>Cart Count:</strong> ${text}</div><hr>`;
+                    });
+            }, 500);
+            
+            // Test 3: Switch restaurant
+            setTimeout(() => {
+                testEndpoint('ajax/switch_restaurant.php', { dish_id: 2, quantity: 1 });
+            }, 1000);
+            
+            // Test 4: Check session
+            setTimeout(() => {
+                fetch('debug_session.php')
+                    .then(r => r.text())
+                    .then(text => {
+                        resultDiv.innerHTML += `<div><strong>Session Debug:</strong><br><pre>${text}</pre></div>`;
+                    });
+            }, 1500);
+        }
+    </script>
+</head>
+<body>
+    <h1>Test Simple Panier</h1>
+    <button onclick="runAllTests()">Lancer tous les tests</button>
+    <div id="result" style="margin-top: 20px; font-family: monospace; white-space: pre-wrap;"></div>
+</body>
+</html>

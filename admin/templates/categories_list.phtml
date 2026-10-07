@@ -1,0 +1,590 @@
+
+<div class="card mb-4">
+    <div class="card-body">
+        <div class="row g-3">
+            <div class="col-md-4">
+                <div class="input-group">
+                    <input type="text" 
+                           class="form-control" 
+                           id="searchInput" 
+                           placeholder="Rechercher une catégorie..."
+                           value="<?= htmlspecialchars($search_query) ?>">
+                    <button class="btn btn-outline-secondary" type="button" id="searchButton">
+                        <i class="bi bi-search"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="col-md-3">
+                <select class="form-select" id="statusFilter">
+                    <option value="">Tous les statuts</option>
+                    <option value="active" <?= $status_filter == 'active' ? 'selected' : '' ?>>Actives uniquement</option>
+                    <option value="inactive" <?= $status_filter == 'inactive' ? 'selected' : '' ?>>Inactives uniquement</option>
+                </select>
+            </div>
+            
+            <div class="col-md-3">
+                <select class="form-select" id="sortFilter">
+                    <option value="name" <?= $sort_by == 'name' ? 'selected' : '' ?>>Trier par nom</option>
+                    <option value="dishes" <?= $sort_by == 'dishes' ? 'selected' : '' ?>>Trier par nombre de plats</option>
+                    <option value="orders" <?= $sort_by == 'orders' ? 'selected' : '' ?>>Trier par commandes</option>
+                    <option value="rating" <?= $sort_by == 'rating' ? 'selected' : '' ?>>Trier par note</option>
+                    <option value="created" <?= $sort_by == 'created' ? 'selected' : '' ?>>Trier par date création</option>
+                </select>
+            </div>
+            
+            <div class="col-md-2">
+                <div class="d-grid">
+                    <a href="add_category.php" class="btn btn-primary">
+                        <i class="bi bi-plus-circle"></i> Nouvelle
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="row mb-4">
+    <div class="col-md-3 col-6">
+        <div class="stat-card text-center">
+            <div class="stat-icon mb-3">
+                <i class="bi bi-tags"></i>
+            </div>
+            <div class="stat-value"><?= $total_categories ?></div>
+            <div class="stat-label">Catégories totales</div>
+        </div>
+    </div>
+    
+    <div class="col-md-3 col-6">
+        <div class="stat-card text-center">
+            <div class="stat-icon mb-3 bg-success">
+                <i class="bi bi-check-circle"></i>
+            </div>
+            <div class="stat-value"><?= $active_categories ?></div>
+            <div class="stat-label">Catégories actives</div>
+        </div>
+    </div>
+    
+    <div class="col-md-3 col-6">
+        <div class="stat-card text-center">
+            <div class="stat-icon mb-3 bg-info">
+                <i class="bi bi-egg-fried"></i>
+            </div>
+            <div class="stat-value"><?= $total_dishes_in_categories ?></div>
+            <div class="stat-label">Plats total</div>
+        </div>
+    </div>
+    
+    <div class="col-md-3 col-6">
+        <div class="stat-card text-center">
+            <div class="stat-icon mb-3 bg-warning">
+                <i class="bi bi-exclamation-triangle"></i>
+            </div>
+            <div class="stat-value"><?= $categories_without_dishes ?></div>
+            <div class="stat-label">Catégories vides</div>
+        </div>
+    </div>
+</div>
+
+
+<div class="card">
+    <div class="card-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <h5 class="card-title mb-0">
+                <i class="bi bi-list-ul"></i> Liste des catégories (<?= $total_categories ?>)
+            </h5>
+            <div class="dropdown">
+                <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                    <i class="bi bi-gear"></i> Actions
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end">
+                    <li><a class="dropdown-item" href="#" id="exportCsv"><i class="bi bi-file-earmark-excel"></i> Exporter CSV</a></li>
+                    <li><a class="dropdown-item" href="#" id="exportPdf"><i class="bi bi-file-earmark-pdf"></i> Exporter PDF</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item" href="#" id="activateAll"><i class="bi bi-check-circle"></i> Activer toutes</a></li>
+                    <li><a class="dropdown-item" href="#" id="deactivateAll"><i class="bi bi-x-circle"></i> Désactiver toutes</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+    <div class="card-body p-0">
+        <?php if (empty($categories)): ?>
+            <div class="text-center py-5">
+                <i class="bi bi-tags display-1 text-muted mb-3"></i>
+                <h4>Aucune catégorie trouvée</h4>
+                <p class="text-muted mb-4">
+                    <?php if ($search_query || $status_filter): ?>
+                        Aucune catégorie ne correspond à vos critères.
+                    <?php else: ?>
+                        Commencez par créer votre première catégorie.
+                    <?php endif; ?>
+                </p>
+                <a href="add_category.php" class="btn btn-primary">
+                    <i class="bi bi-plus-circle"></i> Créer une catégorie
+                </a>
+                <?php if ($search_query || $status_filter): ?>
+                    <a href="categories.php" class="btn btn-outline-secondary ms-2">
+                        <i class="bi bi-x-circle"></i> Réinitialiser
+                    </a>
+                <?php endif; ?>
+            </div>
+        <?php else: ?>
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead>
+                        <tr>
+                            <th width="60">ID</th>
+                            <th width="80">Icône</th>
+                            <th>Nom et description</th>
+                            <th width="120">Statistiques</th>
+                            <th width="100">Statut</th>
+                            <th width="120">Date création</th>
+                            <th width="180">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($categories as $category): ?>
+                        <tr>
+                            <td>
+                                <span class="badge bg-secondary">#<?= $category['id'] ?></span>
+                            </td>
+                            <td>
+                                <div class="category-icon-circle <?= $category['is_active'] ? 'active' : 'inactive' ?>">
+                                    <?php if (!empty($category['icon'])): ?>
+                                        <i class="bi bi-<?= htmlspecialchars($category['icon']) ?>"></i>
+                                    <?php else: ?>
+                                        <i class="bi bi-tag"></i>
+                                    <?php endif; ?>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div>
+                                        <h6 class="mb-1"><?= htmlspecialchars($category['name']) ?></h6>
+                                        <?php if (!empty($category['description'])): ?>
+                                            <p class="text-muted small mb-0">
+                                                <?= htmlspecialchars(substr($category['description'], 0, 80)) ?>
+                                                <?php if (strlen($category['description']) > 80): ?>...<?php endif; ?>
+                                            </p>
+                                        <?php else: ?>
+                                            <span class="text-muted small">Aucune description</span>
+                                        <?php endif; ?>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="category-stats">
+                                    <div class="d-flex align-items-center mb-1">
+                                        <i class="bi bi-egg-fried text-primary me-2"></i>
+                                        <div>
+                                            <div class="fw-bold"><?= $category['dish_count'] ?></div>
+                                            <small class="text-muted">Plats</small>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex align-items-center">
+                                        <i class="bi bi-cart3 text-success me-2"></i>
+                                        <div>
+                                            <div class="fw-bold"><?= $category['total_orders'] ?: 0 ?></div>
+                                            <small class="text-muted">Commandes</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input status-toggle" 
+                                           type="checkbox" 
+                                           data-category-id="<?= $category['id'] ?>"
+                                           <?= $category['is_active'] ? 'checked' : '' ?>>
+                                    <label class="form-check-label">
+                                        <span class="badge bg-<?= $category['is_active'] ? 'success' : 'secondary' ?>">
+                                            <?= $category['is_active'] ? 'Active' : 'Inactive' ?>
+                                        </span>
+                                    </label>
+                                </div>
+                            </td>
+                            <td>
+                                <small class="text-muted">
+                                    <?= date('d/m/Y', strtotime($category['created_at'])) ?>
+                                </small>
+                            </td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    <a href="category_details.php?id=<?= $category['id'] ?>" 
+                                       class="btn btn-outline-info" 
+                                       title="Voir détails"
+                                       data-bs-toggle="tooltip">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                    <a href="edit_category.php?id=<?= $category['id'] ?>" 
+                                       class="btn btn-outline-primary" 
+                                       title="Modifier"
+                                       data-bs-toggle="tooltip">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                    <a href="delete_category.php?id=<?= $category['id'] ?>" 
+                                       class="btn btn-outline-danger"
+                                       onclick="return confirm('Êtes-vous sûr de vouloir supprimer la catégorie \"<?= addslashes($category['name']) ?>\" ? Cette action déplacera tous ses plats dans \"Non catégorisé\".')"
+                                       title="Supprimer"
+                                       data-bs-toggle="tooltip">
+                                        <i class="bi bi-trash"></i>
+                                    </a>
+                                    <button type="button" 
+                                            class="btn btn-outline-secondary dropdown-toggle dropdown-toggle-split" 
+                                            data-bs-toggle="dropdown">
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-end">
+                                        <li><a class="dropdown-item" href="dishes.php?category=<?= $category['id'] ?>"><i class="bi bi-egg-fried me-2"></i> Voir les plats</a></li>
+                                        <li><a class="dropdown-item" href="#" onclick="duplicateCategory(<?= $category['id'] ?>)"><i class="bi bi-copy me-2"></i> Dupliquer</a></li>
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li><a class="dropdown-item text-danger" href="#" onclick="forceDeleteCategory(<?= $category['id'] ?>, '<?= addslashes($category['name']) ?>')"><i class="bi bi-trash3 me-2"></i> Supprimer définitivement</a></li>
+                                    </ul>
+                                </div>
+                            </td>
+                        </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+        <?php endif; ?>
+    </div>
+    
+    <?php if (!empty($categories)): ?>
+    <div class="card-footer">
+        <div class="d-flex justify-content-between align-items-center">
+            <div class="small text-muted">
+                Affichage de <?= count($categories) ?> catégorie(s)
+            </div>
+            <div>
+                <nav aria-label="Navigation des catégories">
+                    <ul class="pagination pagination-sm mb-0">
+                        <li class="page-item disabled">
+                            <a class="page-link" href="#" tabindex="-1">Précédent</a>
+                        </li>
+                        <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                        <li class="page-item"><a class="page-link" href="#">2</a></li>
+                        <li class="page-item"><a class="page-link" href="#">3</a></li>
+                        <li class="page-item">
+                            <a class="page-link" href="#">Suivant</a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+    <?php endif; ?>
+</div>
+
+
+<?php if (!empty($categories)): ?>
+<div class="row mt-4">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-pie-chart"></i> Répartition des plats par catégorie
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <?php foreach ($categories as $category): ?>
+                        <?php if ($category['dish_count'] > 0): ?>
+                            <?php
+                            $percentage = $total_dishes_in_categories > 0 ? 
+                                round(($category['dish_count'] / $total_dishes_in_categories) * 100) : 0;
+                            ?>
+                            <div class="col-md-6 mb-3">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <div class="d-flex align-items-center">
+                                        <div class="me-2">
+                                            <?php if (!empty($category['icon'])): ?>
+                                                <i class="bi bi-<?= htmlspecialchars($category['icon']) ?>"></i>
+                                            <?php endif; ?>
+                                        </div>
+                                        <span class="fw-bold"><?= htmlspecialchars($category['name']) ?></span>
+                                    </div>
+                                    <span><?= $category['dish_count'] ?> plats (<?= $percentage ?>%)</span>
+                                </div>
+                                <div class="progress" style="height: 10px;">
+                                    <div class="progress-bar" 
+                                         role="progressbar" 
+                                         style="width: <?= $percentage ?>%"
+                                         aria-valuenow="<?= $percentage ?>" 
+                                         aria-valuemin="0" 
+                                         aria-valuemax="100">
+                                    </div>
+                                </div>
+                            </div>
+                        <?php endif; ?>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-lightning"></i> Actions rapides
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="list-group list-group-flush">
+                    <a href="add_category.php" class="list-group-item list-group-item-action">
+                        <i class="bi bi-plus-circle text-primary me-2"></i>
+                        Créer une nouvelle catégorie
+                    </a>
+                    <a href="categories.php?status=active" class="list-group-item list-group-item-action">
+                        <i class="bi bi-check-circle text-success me-2"></i>
+                        Voir les catégories actives
+                    </a>
+                    <a href="categories.php?status=inactive" class="list-group-item list-group-item-action">
+                        <i class="bi bi-x-circle text-warning me-2"></i>
+                        Voir les catégories inactives
+                    </a>
+                    <a href="dishes.php?category=" class="list-group-item list-group-item-action">
+                        <i class="bi bi-egg-fried text-info me-2"></i>
+                        Voir les plats non catégorisés
+                    </a>
+                    <button class="list-group-item list-group-item-action" id="generateReport">
+                        <i class="bi bi-file-earmark-text text-secondary me-2"></i>
+                        Générer un rapport PDF
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<?php endif; ?>
+
+<style>
+.stat-card {
+    background: var(--card-bg);
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: var(--shadow-light);
+    border: 1px solid var(--border-color);
+    transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-medium);
+}
+
+.stat-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    font-size: 1.8rem;
+    background: linear-gradient(135deg, var(--primary-green), var(--dark-green));
+    color: white;
+}
+
+.stat-icon.bg-success {
+    background: linear-gradient(135deg, #28a745, #20c997);
+}
+
+.stat-icon.bg-info {
+    background: linear-gradient(135deg, #17a2b8, #0dcaf0);
+}
+
+.stat-icon.bg-warning {
+    background: linear-gradient(135deg, #ffc107, #fd7e14);
+}
+
+.stat-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin: 0.5rem 0;
+}
+
+.stat-label {
+    color: var(--text-gray);
+    font-size: 0.9rem;
+}
+
+.category-icon-circle {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+}
+
+.category-icon-circle.active {
+    background: rgba(57, 193, 193, 0.1);
+    color: var(--primary-green);
+    border: 2px solid var(--primary-green);
+}
+
+.category-icon-circle.inactive {
+    background: rgba(108, 117, 125, 0.1);
+    color: #6c757d;
+    border: 2px dashed #dee2e6;
+}
+
+.category-stats .fw-bold {
+    font-size: 1.1rem;
+}
+
+.table th {
+    background: linear-gradient(135deg, rgba(57, 193, 193, 0.08), rgba(33, 103, 103, 0.08));
+    color: var(--text-dark);
+    font-weight: 600;
+    border-bottom: 2px solid var(--primary-green);
+}
+
+.table tbody tr:hover {
+    background-color: rgba(57, 193, 193, 0.05);
+}
+
+.progress {
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+.progress-bar {
+    background: linear-gradient(90deg, var(--primary-green), var(--dark-green));
+    border-radius: 5px;
+}
+
+.form-check-input:checked {
+    background-color: var(--primary-green);
+    border-color: var(--primary-green);
+}
+
+@media (max-width: 768px) {
+    .stat-card {
+        margin-bottom: 1rem;
+    }
+    
+    .category-icon-circle {
+        width: 40px;
+        height: 40px;
+        font-size: 1.2rem;
+    }
+    
+    .btn-group-sm .btn {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.75rem;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+    
+  
+    const searchInput = document.getElementById('searchInput');
+    const searchButton = document.getElementById('searchButton');
+    const statusFilter = document.getElementById('statusFilter');
+    const sortFilter = document.getElementById('sortFilter');
+    
+    function applyFilters() {
+        const search = searchInput.value.trim();
+        const status = statusFilter.value;
+        const sort = sortFilter.value;
+        
+        let url = 'categories.php?';
+        const params = [];
+        
+        if (search) params.push(`search=${encodeURIComponent(search)}`);
+        if (status) params.push(`status=${status}`);
+        if (sort !== 'name') params.push(`sort=${sort}`);
+        
+        if (params.length > 0) {
+            url += params.join('&');
+            window.location.href = url;
+        } else {
+            window.location.href = 'categories.php';
+        }
+    }
+    
+    if (searchButton) {
+        searchButton.addEventListener('click', applyFilters);
+        searchInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') applyFilters();
+        });
+    }
+    
+    if (statusFilter) {
+        statusFilter.addEventListener('change', applyFilters);
+    }
+    
+    if (sortFilter) {
+        sortFilter.addEventListener('change', applyFilters);
+    }
+    
+
+    const statusToggles = document.querySelectorAll('.status-toggle');
+    statusToggles.forEach(toggle => {
+        toggle.addEventListener('change', function() {
+            const categoryId = this.dataset.categoryId;
+            const isActive = this.checked ? 1 : 0;
+            
+            fetch('toggle_category_status.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `id=${categoryId}&status=${isActive}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                } else {
+                    alert('Erreur lors de la mise à jour du statut');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Erreur réseau');
+            });
+        });
+    });
+    
+    
+    document.getElementById('exportCsv')?.addEventListener('click', function(e) {
+        e.preventDefault();
+        window.location.href = 'export_categories.php?format=csv';
+    });
+    
+    document.getElementById('exportPdf')?.addEventListener('click', function(e) {
+        e.preventDefault();
+        window.location.href = 'export_categories.php?format=pdf';
+    });
+    
+    document.getElementById('generateReport')?.addEventListener('click', function() {
+        alert('Génération du rapport PDF en cours...');
+    });
+});
+
+function duplicateCategory(id) {
+    if (confirm('Voulez-vous dupliquer cette catégorie ?')) {
+        window.location.href = 'duplicate_category.php?id=' + id;
+    }
+}
+
+function forceDeleteCategory(id, name) {
+    if (confirm('ATTENTION : Cette action supprimera définitivement la catégorie "' + name + '" et TOUS ses plats. Êtes-vous ABSOLUMENT sûr ?')) {
+        window.location.href = 'force_delete_category.php?id=' + id;
+    }
+}
+</script>
